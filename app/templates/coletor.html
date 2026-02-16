@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scanner Logístico</title>
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<style>
+body{
+    margin:0;
+    padding:15px;
+    background:#0f172a;
+    color:white;
+    font-family:Arial;
+}
+
+button{
+    width:100%;
+    padding:14px;
+    margin:6px 0;
+    font-size:16px;
+    border:none;
+    border-radius:8px;
+    font-weight:bold;
+}
+
+.btn-primary{background:#3b82f6;color:white;}
+.btn-success{background:#22c55e;color:white;}
+.btn-danger{background:#ef4444;color:white;}
+
+.card{
+    background:#1e293b;
+    padding:15px;
+    border-radius:12px;
+    margin-top:12px;
+}
+
+input{
+    width:100%;
+    padding:15px;
+    font-size:18px;
+    text-align:center;
+    border-radius:8px;
+    border:none;
+    margin-top:8px;
+}
+
+#listaProdutos{
+    max-height:250px;
+    overflow-y:auto;
+    margin-top:10px;
+}
+
+.item{
+    display:flex;
+    justify-content:space-between;
+    padding:8px;
+    border-bottom:1px solid #334155;
+    font-size:14px;
+}
+
+#reader{
+    margin-top:10px;
+}
+
+#feedback{
+    margin-top:10px;
+    font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<h2>📦 Conferência</h2>
+
+<button class="btn-danger" onclick="novaSessao()">🧹 Limpar Sessão</button>
+<button class="btn-primary" onclick="exportarPDF()">📄 Exportar PDF</button>
+
+<div class="card">
+    <h3>🔎 Inserir Código de Barras Manual</h3>
+    <input type="text" id="codigoManual" placeholder="Digite o código de barras">
+    <button class="btn-primary" onclick="buscarManual()">Buscar Produto</button>
+</div>
+
+<div id="reader"></div>
+
+<div class="card" id="quantidadeArea" style="display:none;">
+    <h3 id="produtoNome"></h3>
+    <p>Total produto: <strong id="totalProduto">0</strong></p>
+    <input type="number" id="quantidade" value="1">
+    <button class="btn-success" onclick="salvar()">Salvar</button>
+</div>
+
+<div class="card" id="cadastroArea" style="display:none;">
+    <h3>Novo Produto</h3>
+    <input type="text" id="codigoInterno" placeholder="Código interno do produto">
+    <input type="text" id="descricaoNovo" placeholder="Descrição">
+    <button class="btn-success" onclick="cadastrar()">Cadastrar Produto</button>
+</div>
+
+<div class="card">
+    <h3>📋 Produtos Escaneados</h3>
+    <div id="listaProdutos"></div>
+</div>
+
+<div id="feedback"></div>
+
+<script>
+
+let codigoAtual = null;
+
+/* =========================
+   BUSCA MANUAL
+========================= */
+function buscarManual(){
+    const codigo = document.getElementById("codigoManual").value.trim();
+
+    if(!codigo){
+        alert("Digite um código de barras");
+        return;
+    }
+
+    codigoAtual = codigo;
+    onScanSuccess(codigo);
+}
+
+/* =========================
+   ATUALIZA LISTA
+========================= */
+async function atualizarLista(){
+
+    const resp = await fetch("/recebimentos/lista");
+    const data = await resp.json();
+
+    const lista = document.getElementById("listaProdutos");
+    lista.innerHTML = "";
+
+    data.forEach(prod => {
+        const div = document.createElement("div");
+        div.className = "item";
+        div.innerHTML = `
+            <span>${prod.nome}</span>
+            <strong>${prod.total}</strong>
+        `;
+        lista.appendChild(div);
+    });
+}
+
+/* =========================
+   VERIFICA PRODUTO
+========================= */
+async function onScanSuccess(decodedText){
+
+    codigoAtual = decodedText;
+
+    const resp = await fetch("/recebimentos/verificar",{
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body:JSON.stringify({codigo_barra: codigoAtual})
+    });
+
+    const data = await resp.json();
+
+    if(data.cadastrado){
+
+        document.getElementById("produtoNome").innerText = data.nome;
+        document.getElementById("quantidadeArea").style.display = "block";
+        document.getElementById("cadastroArea").style.display = "none";
+        document.getElementById("feedback").innerText = "";
+
+    }else{
+
+        document.getElementById("quantidadeArea").style.display = "none";
+        document.getElementById("cadastroArea").style.display = "block";
+        document.getElementById("feedback").innerText =
+            "Produto não cadastrado. Cadastre abaixo.";
+    }
+}
+
+/* =========================
+   CADASTRAR
+========================= */
+async function cadastrar(){
+
+    const codigoInterno = document.getElementById("codigoInterno").value.trim();
+    const descricao = document.getElementById("descricaoNovo").value.trim();
+
+    if(!codigoInterno){
+        alert("Informe o código interno");
+        return;
+    }
+
+    const resp = await fetch("/produtos",{
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body:JSON.stringify({
+            codigo: codigoInterno,
+            nome: codigoInterno,
+            codigo_barra: codigoAtual,
+            descricao: descricao
+        })
+    });
+
+    if(resp.ok){
+
+        document.getElementById("feedback").innerText =
+            "✔ Produto cadastrado com sucesso";
+
+        document.getElementById("cadastroArea").style.display = "none";
+        document.getElementById("quantidadeArea").style.display = "block";
+        document.getElementById("produtoNome").innerText = codigoInterno;
+
+    }else{
+        document.getElementById("feedback").innerText =
+            "Erro ao cadastrar produto";
+    }
+}
+
+/* =========================
+   SALVAR
+========================= */
+async function salvar(){
+
+    const quantidade = Number(document.getElementById("quantidade").value);
+
+    const resp = await fetch("/recebimentos/salvar",{
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body:JSON.stringify({
+            codigo_barra: codigoAtual,
+            quantidade: quantidade
+        })
+    });
+
+    const data = await resp.json();
+
+    document.getElementById("totalProduto").innerText =
+        data.quantidade_total;
+
+    document.getElementById("feedback").innerText =
+        "✔ Salvo com sucesso";
+
+    navigator.vibrate?.(100);
+
+    atualizarLista();
+}
+
+/* =========================
+   NOVA SESSÃO
+========================= */
+function novaSessao(){
+    if(confirm("Deseja realmente limpar a sessão?")){
+        fetch("/sessao/nova",{method:"POST"});
+        atualizarLista();
+        document.getElementById("quantidadeArea").style.display="none";
+        document.getElementById("cadastroArea").style.display="none";
+        document.getElementById("totalProduto").innerText="0";
+    }
+}
+
+/* =========================
+   EXPORTAR PDF
+========================= */
+async function exportarPDF(){
+
+    const titulo = prompt(
+        "Digite o título do relatório:",
+        "Relatório de Recebimento de Material"
+    );
+
+    if(!titulo) return;
+
+    const resp = await fetch("/recebimentos/lista");
+    const data = await resp.json();
+
+    if(data.length === 0){
+        alert("Nenhum produto na sessão.");
+        return;
+    }
+
+    const tituloEncoded = encodeURIComponent(titulo);
+    window.location.href = `/relatorio/pdf?titulo=${tituloEncoded}`;
+}
+
+/* =========================
+   INIT
+========================= */
+window.addEventListener("load",()=>{
+    atualizarLista();
+    const scanner = new Html5QrcodeScanner("reader",{fps:10});
+    scanner.render(onScanSuccess);
+});
+
+</script>
+
+</body>
+</html>
