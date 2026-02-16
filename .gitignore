@@ -58,7 +58,6 @@ desktop.ini
 # Project specific
 ngrok.exe
 codigosdeinicializacao
-*.lock
 
 # Temporary files
 *.tmp
