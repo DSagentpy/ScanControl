@@ -2,34 +2,25 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-# Pega a URL do banco de dados das variáveis de ambiente
-DATABASE_URL = os.getenv("DATABASE_URL")
+# Pega a URL do banco de dados da variável de ambiente
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./data.db")
 
-if not DATABASE_URL:
-    # fallback para SQLite local (não recomendado em produção)
-    DATABASE_URL = "sqlite:///./data.db"
+# Define os argumentos de conexão dependendo do tipo de banco
+connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
 
-# Cria o engine do SQLAlchemy dependendo do tipo de banco
-if DATABASE_URL.startswith("sqlite"):
-    engine = create_engine(
-        DATABASE_URL,
-        connect_args={"check_same_thread": False},
-        echo=False
-    )
-else:
-    # PostgreSQL / MySQL
-    engine = create_engine(
-        DATABASE_URL,
-        pool_pre_ping=True,
-        echo=False
-    )
+# Cria o engine do SQLAlchemy
+engine = create_engine(
+    DATABASE_URL,
+    connect_args=connect_args,
+    pool_pre_ping=not DATABASE_URL.startswith("sqlite"),
+    echo=False
+)
 
-# Base e Session
+# Cria o Base e a Session
 Base = declarative_base()
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-
-# Função utilitária para usar nas rotas
+# Função para gerar sessões do banco
 def get_db():
     db = SessionLocal()
     try:
