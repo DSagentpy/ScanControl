@@ -2,7 +2,7 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://scanner_logistico_user:tAN4p0V9sthOb7kyCOctxFyXAXCysfz1@dpg-d69720ur433s73ct79t0-a/scanner_logistico")
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Se for SQLite, precisa do check_same_thread
 if DATABASE_URL.startswith("sqlite"):
