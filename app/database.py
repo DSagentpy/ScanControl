@@ -10,11 +10,10 @@ connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite")
 
 # Cria o engine do SQLAlchemy
 engine = create_engine(
-    DATABASE_URL,
-    connect_args=connect_args,
-    pool_pre_ping=not DATABASE_URL.startswith("sqlite"),
-    echo=False
+    DATABASE_URL.replace("postgresql://", "postgresql+psycopg://"),
+    pool_pre_ping=True
 )
+
 
 # Cria o Base e a Session
 Base = declarative_base()
