@@ -8,99 +8,142 @@
 <style>
 body{
     margin:0;
-    padding:15px;
-    background:#0f172a;
-    color:white;
-    font-family:Arial;
+    padding:12px;
+    background:#0B0F14;
+    color:#E5E7EB;
+    font-family: system-ui, -apple-system, sans-serif;
+    font-size:14px;
+}
+
+h2{
+    font-size:16px;
+    font-weight:600;
+    margin-bottom:8px;
+    color:#F3F4F6;
+}
+
+h3{
+    font-size:14px;
+    font-weight:500;
+    margin-bottom:6px;
+    color:#9CA3AF;
 }
 
 button{
     width:100%;
-    padding:14px;
-    margin:6px 0;
-    font-size:16px;
+    padding:8px;
+    margin:4px 0;
+    font-size:13px;
     border:none;
-    border-radius:8px;
-    font-weight:bold;
+    border-radius:6px;
+    font-weight:500;
+    cursor:pointer;
 }
 
-.btn-primary{background:#3b82f6;color:white;}
-.btn-success{background:#22c55e;color:white;}
-.btn-danger{background:#ef4444;color:white;}
+.btn-primary{ background:#2563EB; color:white; }
+.btn-success{ background:#16A34A; color:white; }
+.btn-danger{ background:#DC2626; color:white; }
 
 .card{
-    background:#1e293b;
-    padding:15px;
-    border-radius:12px;
-    margin-top:12px;
+    background:#111827;
+    padding:10px;
+    border-radius:8px;
+    margin-top:8px;
+    border:1px solid #1F2937;
 }
 
-input{
+input, select{
     width:100%;
-    padding:15px;
-    font-size:18px;
+    padding:8px;
+    font-size:14px;
     text-align:center;
-    border-radius:8px;
-    border:none;
-    margin-top:8px;
+    border-radius:6px;
+    border:1px solid #1F2937;
+    background:#0F172A;
+    color:#E5E7EB;
+    margin-top:6px;
 }
+
+#reader{
+    margin-top:10px;
+    max-width:320px;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+#reader video{
+    width:100% !important;
+    height:220px !important;
+    object-fit:cover;
+    border-radius:8px;
+}
+
+/* Indicador visual */
+
+#reader.success {
+    border: 2px solid #22C55E;
+    box-shadow: 0 0 15px #22C55E55;
+}
+
+#reader.error {
+    border: 2px solid #EF4444;
+    box-shadow: 0 0 15px #EF444455;
+}
+
 
 #listaProdutos{
-    max-height:250px;
+    max-height:180px;
     overflow-y:auto;
-    margin-top:10px;
+    margin-top:6px;
 }
 
 .item{
     display:flex;
     justify-content:space-between;
-    padding:8px;
-    border-bottom:1px solid #334155;
-    font-size:14px;
-}
-
-#reader{
-    margin-top:10px;
+    padding:6px 4px;
+    border-bottom:1px solid #1F2937;
+    font-size:13px;
 }
 
 #feedback{
-    margin-top:10px;
-    font-weight:bold;
+    margin-top:6px;
+    font-size:13px;
+    color:#22C55E;
 }
 </style>
 </head>
 
 <body>
 
-<h2>📦 Conferência</h2>
-
-<button class="btn-danger" onclick="novaSessao()">🧹 Limpar Sessão</button>
-<button class="btn-primary" onclick="exportarPDF()">📄 Exportar PDF</button>
+<h2>📦 Scanner Logístico</h2>
 
 <div class="card">
-    <h3>🔎 Inserir Código de Barras Manual</h3>
-    <input type="text" id="codigoManual" placeholder="Digite o código de barras">
-    <button class="btn-primary" onclick="buscarManual()">Buscar Produto</button>
+    <h3>📂 Sessões</h3>
+    <select id="sessaoSelect"></select>
+    <button class="btn-primary" onclick="criarSessao()">Nova Sessão</button>
+    <button class="btn-danger" onclick="excluirSessao()">Excluir Sessão</button>
 </div>
+
+<button class="btn-primary" onclick="exportarPDF()">📄 Exportar PDF</button>
 
 <div id="reader"></div>
 
 <div class="card" id="quantidadeArea" style="display:none;">
     <h3 id="produtoNome"></h3>
-    <p>Total produto: <strong id="totalProduto">0</strong></p>
+    <p>Total: <strong id="totalProduto">0</strong></p>
     <input type="number" id="quantidade" value="1">
     <button class="btn-success" onclick="salvar()">Salvar</button>
 </div>
 
 <div class="card" id="cadastroArea" style="display:none;">
     <h3>Novo Produto</h3>
-    <input type="text" id="codigoInterno" placeholder="Código interno do produto">
+    <input type="text" id="codigoInterno" placeholder="Código interno">
     <input type="text" id="descricaoNovo" placeholder="Descrição">
     <button class="btn-success" onclick="cadastrar()">Cadastrar Produto</button>
 </div>
 
 <div class="card">
-    <h3>📋 Produtos Escaneados</h3>
+    <h3>Produtos da Sessão</h3>
     <div id="listaProdutos"></div>
 </div>
 
@@ -109,28 +152,87 @@ input{
 <script>
 
 let codigoAtual = null;
+let sessaoAtual = null;
+
+/* 🔊 BEEP */
+function beep(tipo="success"){
+
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+const oscillator = audioCtx.createOscillator();
+const gainNode = audioCtx.createGain();
+
+oscillator.connect(gainNode);
+gainNode.connect(audioCtx.destination);
+
+oscillator.type = "square";
+
+if(tipo === "success"){
+    oscillator.frequency.value = 1000;
+} else {
+    oscillator.frequency.value = 400;
+}
+
+gainNode.gain.value = 0.1;
+
+oscillator.start();
+setTimeout(() => {
+    oscillator.stop();
+    audioCtx.close();
+}, 150);
+}
+
 
 /* =========================
-   BUSCA MANUAL
+   SESSÕES
 ========================= */
-function buscarManual(){
-    const codigo = document.getElementById("codigoManual").value.trim();
+async function carregarSessoes(){
+    const resp = await fetch("/sessao");
+    const data = await resp.json();
 
-    if(!codigo){
-        alert("Digite um código de barras");
-        return;
+    const select = document.getElementById("sessaoSelect");
+    select.innerHTML = "";
+
+    data.forEach(sessao => {
+        const option = document.createElement("option");
+        option.value = sessao.id;
+        option.text = "Sessão " + sessao.id;
+        select.appendChild(option);
+    });
+
+    if(data.length > 0){
+        sessaoAtual = data[0].id;
+        select.value = sessaoAtual;
+        atualizarLista();
     }
+}
 
-    codigoAtual = codigo;
-    onScanSuccess(codigo);
+document.getElementById("sessaoSelect")
+.addEventListener("change", function(){
+    sessaoAtual = this.value;
+    atualizarLista();
+});
+
+async function criarSessao(){
+    await fetch("/sessao", { method:"POST" });
+    await carregarSessoes();
+}
+
+async function excluirSessao(){
+    if(!sessaoAtual) return;
+
+    if(confirm("Excluir esta sessão?")){
+        await fetch(`/sessao/${sessaoAtual}`, { method:"DELETE" });
+        await carregarSessoes();
+    }
 }
 
 /* =========================
-   ATUALIZA LISTA
+   ATUALIZAR LISTA
 ========================= */
 async function atualizarLista(){
+    if(!sessaoAtual) return;
 
-    const resp = await fetch("/recebimentos/lista");
+    const resp = await fetch(`/recebimentos/lista/${sessaoAtual}`);
     const data = await resp.json();
 
     const lista = document.getElementById("listaProdutos");
@@ -148,34 +250,51 @@ async function atualizarLista(){
 }
 
 /* =========================
-   VERIFICA PRODUTO
+   SCAN
 ========================= */
 async function onScanSuccess(decodedText){
 
-    codigoAtual = decodedText;
+codigoAtual = decodedText;
 
-    const resp = await fetch("/recebimentos/verificar",{
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body:JSON.stringify({codigo_barra: codigoAtual})
-    });
+const resp = await fetch("/recebimentos/verificar",{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({codigo_barra: codigoAtual})
+});
 
-    const data = await resp.json();
+const data = await resp.json();
 
-    if(data.cadastrado){
+const reader = document.getElementById("reader");
 
-        document.getElementById("produtoNome").innerText = data.nome;
-        document.getElementById("quantidadeArea").style.display = "block";
-        document.getElementById("cadastroArea").style.display = "none";
-        document.getElementById("feedback").innerText = "";
+if(data.cadastrado){
 
-    }else{
+    beep("success");
+    navigator.vibrate?.(80);
 
-        document.getElementById("quantidadeArea").style.display = "none";
-        document.getElementById("cadastroArea").style.display = "block";
-        document.getElementById("feedback").innerText =
-            "Produto não cadastrado. Cadastre abaixo.";
-    }
+    reader.classList.add("success");
+
+    document.getElementById("produtoNome").innerText = data.nome;
+    document.getElementById("quantidadeArea").style.display = "block";
+    document.getElementById("cadastroArea").style.display = "none";
+
+} else {
+
+    beep("error");
+    navigator.vibrate?.(150);
+
+    reader.classList.add("error");
+
+    document.getElementById("quantidadeArea").style.display = "none";
+    document.getElementById("cadastroArea").style.display = "block";
+    document.getElementById("feedback").innerText =
+        "Produto não cadastrado.";
+}
+
+// Remove efeito após 500ms
+setTimeout(() => {
+    reader.classList.remove("success");
+    reader.classList.remove("error");
+}, 500);
 }
 
 /* =========================
@@ -185,11 +304,6 @@ async function cadastrar(){
 
     const codigoInterno = document.getElementById("codigoInterno").value.trim();
     const descricao = document.getElementById("descricaoNovo").value.trim();
-
-    if(!codigoInterno){
-        alert("Informe o código interno");
-        return;
-    }
 
     const resp = await fetch("/produtos",{
         method:"POST",
@@ -203,17 +317,11 @@ async function cadastrar(){
     });
 
     if(resp.ok){
-
         document.getElementById("feedback").innerText =
-            "✔ Produto cadastrado com sucesso";
-
-        document.getElementById("cadastroArea").style.display = "none";
-        document.getElementById("quantidadeArea").style.display = "block";
+            "✔ Produto cadastrado";
+        document.getElementById("cadastroArea").style.display="none";
+        document.getElementById("quantidadeArea").style.display="block";
         document.getElementById("produtoNome").innerText = codigoInterno;
-
-    }else{
-        document.getElementById("feedback").innerText =
-            "Erro ao cadastrar produto";
     }
 }
 
@@ -222,9 +330,14 @@ async function cadastrar(){
 ========================= */
 async function salvar(){
 
+    if(!sessaoAtual){
+        alert("Selecione uma sessão.");
+        return;
+    }
+
     const quantidade = Number(document.getElementById("quantidade").value);
 
-    const resp = await fetch("/recebimentos/salvar",{
+    const resp = await fetch(`/recebimentos/salvar/${sessaoAtual}`,{
         method:"POST",
         headers:{ "Content-Type":"application/json" },
         body:JSON.stringify({
@@ -241,57 +354,29 @@ async function salvar(){
     document.getElementById("feedback").innerText =
         "✔ Salvo com sucesso";
 
-    navigator.vibrate?.(100);
-
     atualizarLista();
 }
 
 /* =========================
-   NOVA SESSÃO
+   PDF
 ========================= */
-function novaSessao(){
-    if(confirm("Deseja realmente limpar a sessão?")){
-        fetch("/sessao/nova",{method:"POST"});
-        atualizarLista();
-        document.getElementById("quantidadeArea").style.display="none";
-        document.getElementById("cadastroArea").style.display="none";
-        document.getElementById("totalProduto").innerText="0";
-    }
-}
-
-/* =========================
-   EXPORTAR PDF
-========================= */
-async function exportarPDF(){
-
-    const titulo = prompt(
-        "Digite o título do relatório:",
-        "Relatório de Recebimento de Material"
-    );
-
-    if(!titulo) return;
-
-    const resp = await fetch("/recebimentos/lista");
-    const data = await resp.json();
-
-    if(data.length === 0){
-        alert("Nenhum produto na sessão.");
-        return;
-    }
-
-    const tituloEncoded = encodeURIComponent(titulo);
-    window.location.href = `/relatorio/pdf?titulo=${tituloEncoded}`;
+function exportarPDF(){
+    if(!sessaoAtual) return;
+    window.location.href =
+        `/relatorio/pdf?sessao_id=${sessaoAtual}`;
 }
 
 /* =========================
    INIT
 ========================= */
 window.addEventListener("load",()=>{
-    atualizarLista();
-    const scanner = new Html5QrcodeScanner("reader",{fps:10});
+    carregarSessoes();
+    const scanner = new Html5QrcodeScanner("reader",{
+        fps:10,
+        qrbox:200
+    });
     scanner.render(onScanSuccess);
 });
-
 </script>
 
 </body>

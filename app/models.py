@@ -12,10 +12,15 @@ class Produto(Base):
     descricao = Column(String)
 
 
+from sqlalchemy import Column, Integer, DateTime
+from datetime import datetime
+
 class Sessao(Base):
     __tablename__ = "sessao"
 
     id = Column(Integer, primary_key=True, index=True)
+    criada_em = Column(DateTime, default=datetime.utcnow)
+
 
 class Recebimento(Base):
     __tablename__ = "recebimentos"

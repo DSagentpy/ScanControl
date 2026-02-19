@@ -50,11 +50,12 @@ def verificar(dados: CodigoBarra, db: Session = Depends(get_db)):
 
 
 
-
-@router.post("/recebimentos/salvar")
-def salvar_recebimento(dados: schemas.RecebimentoCreate, db: Session = Depends(get_db)):
-
-    sessao = get_ultima_sessao(db)
+@router.post("/recebimentos/salvar/{sessao_id}")
+def salvar_recebimento(
+    sessao_id: int,
+    dados: schemas.RecebimentoCreate,
+    db: Session = Depends(get_db)
+):
 
     produto = db.query(models.Produto).filter(
         models.Produto.codigo_barra == dados.codigo_barra
@@ -66,29 +67,23 @@ def salvar_recebimento(dados: schemas.RecebimentoCreate, db: Session = Depends(g
     novo = models.Recebimento(
         produto_id=produto.id,
         quantidade=dados.quantidade,
-        sessao_id=sessao.id
+        sessao_id=sessao_id
     )
 
     db.add(novo)
     db.commit()
 
-    # 🔥 AQUI ESTÁ A PARTE IMPORTANTE
     total_produto = db.query(func.sum(models.Recebimento.quantidade)).filter(
         models.Recebimento.produto_id == produto.id,
-        models.Recebimento.sessao_id == sessao.id
+        models.Recebimento.sessao_id == sessao_id
     ).scalar()
 
-    return {
-        "quantidade_total": total_produto or 0
-    }
+    return {"quantidade_total": total_produto or 0}
 
-@router.get("/recebimentos/lista")
-def lista_produtos_sessao(db: Session = Depends(get_db)):
 
-    sessao = get_ultima_sessao(db)
 
-    if not sessao:
-        return []
+@router.get("/recebimentos/lista/{sessao_id}")
+def lista_produtos_sessao(sessao_id: int, db: Session = Depends(get_db)):
 
     resultados = db.query(
         models.Produto.nome,
@@ -97,7 +92,7 @@ def lista_produtos_sessao(db: Session = Depends(get_db)):
         models.Recebimento,
         models.Produto.id == models.Recebimento.produto_id
     ).filter(
-        models.Recebimento.sessao_id == sessao.id
+        models.Recebimento.sessao_id == sessao_id
     ).group_by(
         models.Produto.nome
     ).order_by(
