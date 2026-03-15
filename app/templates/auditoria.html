@@ -3,269 +3,539 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <meta name="theme-color" content="#111827" />
+  <meta name="theme-color" content="#0f0c29" />
   <title>Auditoria de Inventário</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    /* ── FUNDO ANIMADO ─────────────────────────────── */
     body {
-      background: #111827;
-      color: #F9FAFB;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: 'Poppins', -apple-system, sans-serif;
       font-size: 15px;
-      padding: 12px;
-      max-width: 680px;
-      margin: 0 auto;
       min-height: 100vh;
+      color: #F9FAFB;
+      background: #0f0c29;
+      position: relative;
+      overflow-x: hidden;
     }
 
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 15% 25%, rgba(118,75,162,0.4) 0%, transparent 50%),
+        radial-gradient(ellipse at 85% 75%, rgba(240,93,251,0.25) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 10%, rgba(102,126,234,0.2) 0%, transparent 40%);
+      animation: bgPulse 10s ease-in-out infinite alternate;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    @keyframes bgPulse {
+      0%   { opacity: 0.7; transform: scale(1);    }
+      100% { opacity: 1;   transform: scale(1.05); }
+    }
+
+    .page-wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 16px 14px 80px;
+    }
+
+    /* ── HEADER ─────────────────────────────────────── */
     .top-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 0 14px;
+      padding: 8px 0 18px;
     }
-    h2 { font-size: 1.2rem; font-weight: 700; color: #A78BFA; }
 
-    .card {
-      background: #1F2937;
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #764ba2, #f093fb);
       border-radius: 12px;
-      padding: 14px;
-      margin-bottom: 12px;
-      border: 1px solid #374151;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      box-shadow: 0 4px 15px rgba(118,75,162,0.5);
     }
+
+    .logo-text {
+      font-size: 1.1rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #c4b5fd, #f0abfc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.3px;
+    }
+
+    .logo-sub {
+      font-size: .65rem;
+      color: #6B7280;
+      font-weight: 400;
+      display: block;
+      -webkit-text-fill-color: #6B7280;
+      margin-top: -2px;
+    }
+
+    .btn-back {
+      color: #9CA3AF;
+      text-decoration: none;
+      font-size: .82rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 14px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: all .2s;
+    }
+    .btn-back:hover { color: #F9FAFB; background: rgba(255,255,255,0.1); }
+
+    /* ── GLASS CARDS ─────────────────────────────────── */
+    .card {
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 14px;
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .card:hover { transform: translateY(-1px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+
+    .card-border-purple { border-left: 3px solid #764ba2; }
+    .card-border-green  { border-left: 3px solid #43e97b; }
+    .card-border-blue   { border-left: 3px solid #667eea; }
+
     .card h3 {
-      font-size: .95rem;
+      font-size: .92rem;
       font-weight: 600;
-      color: #C4B5FD;
-      margin-bottom: 12px;
+      color: #c4b5fd;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
-    label { display: block; color: #9CA3AF; font-size: .82rem; margin-bottom: 4px; }
+    /* ── STEPS ───────────────────────────────────────── */
+    .step-label {
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      margin-bottom: 5px;
+      background: linear-gradient(135deg, #a78bfa, #f0abfc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
 
+    label {
+      display: block;
+      color: #9CA3AF;
+      font-size: .8rem;
+      margin-bottom: 5px;
+    }
+
+    /* ── INPUTS ──────────────────────────────────────── */
     input[type="text"], select {
       width: 100%;
-      background: #111827;
-      border: 1px solid #374151;
-      border-radius: 8px;
-      color: #F9FAFB;
-      padding: 10px 12px;
-      font-size: .9rem;
-      margin-bottom: 12px;
-      outline: none;
-      transition: border-color .2s;
-    }
-    input:focus, select:focus { border-color: #7C3AED; }
-    input::placeholder { color: #6B7280; }
-
-    .upload-area {
-      border: 2px dashed #4B5563;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.1);
       border-radius: 10px;
-      padding: 20px;
+      color: #F9FAFB;
+      padding: 10px 14px;
+      font-size: .88rem;
+      font-family: 'Poppins', sans-serif;
+      margin-bottom: 14px;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    input:focus, select:focus {
+      border-color: #764ba2;
+      box-shadow: 0 0 0 3px rgba(118,75,162,0.2);
+    }
+    input::placeholder { color: #4B5563; }
+    select option { background: #1a1035; }
+
+    /* ── UPLOAD AREA ─────────────────────────────────── */
+    .upload-area {
+      border: 2px dashed rgba(255,255,255,0.15);
+      border-radius: 12px;
+      padding: 24px;
       text-align: center;
       cursor: pointer;
-      transition: border-color .2s, background .2s;
-      margin-bottom: 12px;
+      transition: all .2s;
+      margin-bottom: 14px;
+      background: rgba(0,0,0,0.2);
     }
-    .upload-area:hover, .upload-area.drag { border-color: #7C3AED; background: #1a1f2e; }
-    .upload-area.ok { border-color: #16A34A; background: #0d1f10; }
-    .upload-area p { color: #9CA3AF; font-size: .88rem; margin-top: 6px; }
-    .upload-area strong { color: #F9FAFB; }
+    .upload-area:hover, .upload-area.drag {
+      border-color: #764ba2;
+      background: rgba(118,75,162,0.1);
+      box-shadow: 0 0 20px rgba(118,75,162,0.2);
+    }
+    .upload-area.ok {
+      border-color: #43e97b;
+      background: rgba(67,233,123,0.08);
+      box-shadow: 0 0 20px rgba(67,233,123,0.15);
+    }
+    .upload-area .upload-icon { font-size: 2.2rem; margin-bottom: 8px; }
+    .upload-area strong { color: #F9FAFB; font-size: .9rem; }
+    .upload-area p { color: #6B7280; font-size: .8rem; margin-top: 6px; }
     #fileInput { display: none; }
 
+    /* ── INFO BOX ────────────────────────────────────── */
+    .info-box {
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: .78rem;
+      color: #9CA3AF;
+      margin-bottom: 14px;
+      line-height: 1.7;
+    }
+    .info-box code {
+      background: rgba(167,139,250,0.15);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #c4b5fd;
+      font-size: .76rem;
+    }
+    .info-box a { color: #a78bfa; text-decoration: none; }
+    .info-box a:hover { text-decoration: underline; }
+
+    /* ── BOTÕES ──────────────────────────────────────── */
     .btn-row { display: flex; gap: 8px; }
+
     button {
       flex: 1;
-      border: none; border-radius: 8px;
+      border: none;
+      border-radius: 10px;
       padding: 11px 10px;
-      font-size: .88rem; font-weight: 600;
+      font-size: .85rem;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
       cursor: pointer;
-      transition: opacity .15s, transform .1s;
+      transition: transform .15s, box-shadow .15s, opacity .15s;
       touch-action: manipulation;
     }
-    button:active { opacity: .8; transform: scale(.98); }
-    button:disabled { opacity: .4; cursor: not-allowed; }
+    button:active  { opacity: .85; transform: scale(.97); }
+    button:hover   { transform: translateY(-2px); }
+    button:disabled { opacity: .35; cursor: not-allowed; transform: none; }
 
-    .btn-primary   { background: #7C3AED; color: #fff; }
-    .btn-success   { background: #16A34A; color: #fff; }
-    .btn-secondary { background: #374151; color: #D1D5DB; }
-    .btn-danger    { background: #DC2626; color: #fff; }
-    .btn-sm {
-      flex: unset; padding: 4px 10px;
-      font-size: .76rem; border-radius: 6px;
+    .btn-primary {
+      background: linear-gradient(135deg, #764ba2, #667eea);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(118,75,162,0.4);
+    }
+    .btn-primary:hover:not(:disabled) { box-shadow: 0 6px 20px rgba(118,75,162,0.55); }
+
+    .btn-success {
+      background: linear-gradient(135deg, #43e97b, #38f9d7);
+      color: #064e3b;
+      box-shadow: 0 4px 15px rgba(67,233,123,0.35);
+    }
+    .btn-success:hover { box-shadow: 0 6px 20px rgba(67,233,123,0.5); }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #f093fb, #f5576c);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(245,87,108,0.35);
     }
 
-    /* KPI cards */
+    .btn-secondary {
+      background: rgba(255,255,255,0.08);
+      color: #D1D5DB;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.14); }
+
+    .btn-sm {
+      flex: unset;
+      padding: 5px 12px;
+      font-size: .75rem;
+      border-radius: 8px;
+    }
+
+    /* ── PROGRESS BAR ────────────────────────────────── */
+    .progress-bar-wrap {
+      background: rgba(255,255,255,0.08);
+      border-radius: 6px;
+      height: 6px;
+      margin: 12px 0;
+      overflow: hidden;
+    }
+    .progress-bar {
+      background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+      height: 6px;
+      border-radius: 6px;
+      transition: width .4s ease;
+      width: 0%;
+      background-size: 200% 100%;
+      animation: gradientShift 2s linear infinite;
+    }
+    @keyframes gradientShift {
+      0%   { background-position: 0% 50%;   }
+      100% { background-position: 200% 50%; }
+    }
+
+    /* ── KPI GRID ────────────────────────────────────── */
     .kpi-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-      gap: 8px;
-      margin-bottom: 14px;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
     }
-    .kpi-card {
-      background: #111827;
-      border-radius: 10px;
-      padding: 12px 10px;
-      text-align: center;
-      border: 1px solid #374151;
-    }
-    .kpi-card .valor {
-      font-size: 1.5rem;
-      font-weight: 700;
-      line-height: 1.2;
-    }
-    .kpi-card .rotulo { font-size: .72rem; color: #9CA3AF; margin-top: 4px; }
 
-    .kpi-acuracidade .valor { color: #34D399; }
+    .kpi-card {
+      background: rgba(0,0,0,0.3);
+      backdrop-filter: blur(8px);
+      border-radius: 12px;
+      padding: 14px 10px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: transform .2s;
+    }
+    .kpi-card:hover { transform: translateY(-2px); }
+
+    .kpi-card .valor {
+      font-size: 1.6rem;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+    .kpi-card .rotulo {
+      font-size: .68rem;
+      color: #6B7280;
+      margin-top: 5px;
+      font-weight: 500;
+    }
+
+    .kpi-acuracidade .valor {
+      background: linear-gradient(135deg, #43e97b, #38f9d7);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
     .kpi-ok .valor          { color: #22C55E; }
     .kpi-divergente .valor  { color: #FBBF24; }
     .kpi-critico .valor     { color: #EF4444; }
-    .kpi-fantasma .valor    { color: #A855F7; }
-    .kpi-sistemico .valor   { color: #3B82F6; }
+    .kpi-fantasma .valor    {
+      background: linear-gradient(135deg, #a855f7, #f0abfc);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .kpi-sistemico .valor   { color: #60A5FA; }
     .kpi-ruptura .valor     { color: #F97316; }
 
-    /* Filtros */
+    /* ── FILTROS ─────────────────────────────────────── */
     .filtros {
       display: flex;
       gap: 6px;
       flex-wrap: wrap;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
+
     .filtro-btn {
       flex: unset;
-      padding: 5px 12px;
-      font-size: .78rem;
+      padding: 5px 13px;
+      font-size: .75rem;
       border-radius: 20px;
-      border: 1px solid #374151;
-      background: #111827;
-      color: #9CA3AF;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(0,0,0,0.3);
+      color: #6B7280;
       cursor: pointer;
       font-weight: 500;
+      font-family: 'Poppins', sans-serif;
       transition: all .15s;
     }
-    .filtro-btn.ativo { border-color: #7C3AED; background: #7C3AED; color: #fff; }
-
-    /* Tabela de resultados */
-    .resultado-table { width: 100%; border-collapse: collapse; font-size: .82rem; }
-    .resultado-table th {
-      background: #374151; color: #D1D5DB;
-      padding: 8px 6px; text-align: left;
-      font-size: .78rem; font-weight: 600;
-      position: sticky; top: 0; z-index: 1;
+    .filtro-btn:hover { border-color: #764ba2; color: #c4b5fd; transform: none; }
+    .filtro-btn.ativo {
+      border-color: transparent;
+      background: linear-gradient(135deg, #764ba2, #667eea);
+      color: #fff;
+      box-shadow: 0 3px 10px rgba(118,75,162,0.4);
     }
-    .resultado-table td { padding: 8px 6px; border-bottom: 1px solid #374151; }
+
+    /* ── TABELA ──────────────────────────────────────── */
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .resultado-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .8rem;
+    }
+
+    .resultado-table th {
+      background: rgba(0,0,0,0.4);
+      color: #9CA3AF;
+      padding: 10px 8px;
+      text-align: left;
+      font-size: .73rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    .resultado-table td {
+      padding: 10px 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
     .resultado-table tr:last-child td { border-bottom: none; }
 
+    .resultado-table tr:hover td {
+      background: rgba(255,255,255,0.03);
+    }
+
+    /* ── STATUS BADGES ───────────────────────────────── */
     .status-badge {
       display: inline-block;
-      padding: 2px 8px;
+      padding: 3px 9px;
       border-radius: 10px;
-      font-size: .72rem;
+      font-size: .7rem;
       font-weight: 600;
       white-space: nowrap;
     }
-    .status-OK           { background: #14532D; color: #86EFAC; }
-    .status-DIVERGENTE   { background: #713F12; color: #FDE68A; }
-    .status-CRITICO      { background: #7F1D1D; color: #FCA5A5; }
-    .status-FANTASMA     { background: #4C1D95; color: #DDD6FE; }
-    .status-NAO_SISTEMICO{ background: #1E3A5F; color: #93C5FD; }
-    .status-RUPTURA      { background: #7C2D12; color: #FED7AA; }
+    .status-OK           { background: rgba(20,83,45,0.7);  color: #86EFAC; border: 1px solid rgba(134,239,172,0.2); }
+    .status-DIVERGENTE   { background: rgba(113,63,18,0.7); color: #FDE68A; border: 1px solid rgba(253,230,138,0.2); }
+    .status-CRITICO      { background: rgba(127,29,29,0.7); color: #FCA5A5; border: 1px solid rgba(252,165,165,0.2); }
+    .status-FANTASMA     { background: rgba(76,29,149,0.7); color: #DDD6FE; border: 1px solid rgba(221,214,254,0.2); }
+    .status-NAO_SISTEMICO{ background: rgba(30,58,95,0.7);  color: #93C5FD; border: 1px solid rgba(147,197,253,0.2); }
+    .status-RUPTURA      { background: rgba(124,45,18,0.7); color: #FED7AA; border: 1px solid rgba(254,215,170,0.2); }
 
-    .divergencia-pos { color: #34D399; }
-    .divergencia-neg { color: #EF4444; }
-    .divergencia-zero{ color: #9CA3AF; }
+    .divergencia-pos { color: #43e97b; font-weight: 700; }
+    .divergencia-neg { color: #f5576c; font-weight: 700; }
+    .divergencia-zero{ color: #4B5563; }
 
-    .table-wrap { overflow-x: auto; border-radius: 8px; }
-
-    /* Histórico */
+    /* ── HISTÓRICO ───────────────────────────────────── */
     .historico-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 0;
-      border-bottom: 1px solid #374151;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
       gap: 8px;
+      transition: all .15s;
     }
     .historico-item:last-child { border-bottom: none; }
-    .historico-info .nome { font-weight: 500; font-size: .9rem; }
-    .historico-info .sub  { font-size: .75rem; color: #6B7280; margin-top: 2px; }
+    .historico-item:hover { padding-left: 4px; }
+
+    .historico-info .nome { font-weight: 500; font-size: .88rem; }
+    .historico-info .sub  { font-size: .72rem; color: #6B7280; margin-top: 3px; }
 
     .acuracidade-badge {
-      font-size: .82rem; font-weight: 700;
-      padding: 3px 10px; border-radius: 10px;
+      font-size: .78rem;
+      font-weight: 700;
+      padding: 4px 11px;
+      border-radius: 10px;
       white-space: nowrap;
     }
-    .ac-alta   { background: #14532D; color: #86EFAC; }
-    .ac-media  { background: #713F12; color: #FDE68A; }
-    .ac-baixa  { background: #7F1D1D; color: #FCA5A5; }
+    .ac-alta  { background: rgba(20,83,45,0.7);  color: #86EFAC; }
+    .ac-media { background: rgba(113,63,18,0.7); color: #FDE68A; }
+    .ac-baixa { background: rgba(127,29,29,0.7); color: #FCA5A5; }
 
-    .empty-state { text-align: center; color: #4B5563; padding: 20px 0; font-size: .88rem; }
-
-    .step-label {
-      font-size: .72rem;
-      font-weight: 700;
-      color: #7C3AED;
-      text-transform: uppercase;
-      letter-spacing: .5px;
-      margin-bottom: 4px;
-    }
-
-    .info-box {
-      background: #111827;
-      border: 1px solid #374151;
-      border-radius: 8px;
-      padding: 10px 12px;
-      font-size: .8rem;
-      color: #9CA3AF;
-      margin-bottom: 12px;
-      line-height: 1.6;
-    }
-    .info-box code {
-      background: #1F2937;
-      padding: 1px 5px;
-      border-radius: 4px;
-      color: #C4B5FD;
-      font-size: .78rem;
-    }
-
+    /* ── FEEDBACK ────────────────────────────────────── */
     #feedback {
-      position: fixed; bottom: 16px; left: 50%;
-      transform: translateX(-50%);
-      background: #1F2937; border: 1px solid #374151;
-      border-radius: 20px; padding: 10px 20px;
-      font-size: .88rem; font-weight: 600;
-      min-width: 200px; text-align: center;
-      pointer-events: none; opacity: 0;
-      transition: opacity .3s; z-index: 999;
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(15,12,41,0.92);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 24px;
+      padding: 11px 22px;
+      font-size: .85rem;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      min-width: 200px;
+      text-align: center;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .3s, transform .3s;
+      z-index: 999;
       max-width: 90vw;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
     }
-    #feedback.show { opacity: 1; }
+    #feedback.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
 
     .hidden { display: none !important; }
 
-    .progress-bar-wrap {
-      background: #374151; border-radius: 4px; height: 6px; margin: 10px 0;
+    .empty-state {
+      text-align: center;
+      color: #374151;
+      padding: 24px 0;
+      font-size: .85rem;
     }
-    .progress-bar { background: #7C3AED; height: 6px; border-radius: 4px; transition: width .4s; width: 0%; }
 
-    a.back-link {
-      color: #9CA3AF; text-decoration: none; font-size: .85rem;
-      display: flex; align-items: center; gap: 4px;
+    /* ── DIVIDER ─────────────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      margin: 16px 0;
     }
-    a.back-link:hover { color: #F9FAFB; }
+
+    /* ── RESULTADO HEADER ────────────────────────────── */
+    .resultado-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .resultado-header h3 { margin-bottom: 0; }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+      .kpi-card .valor { font-size: 1.3rem; }
+    }
   </style>
 </head>
 <body>
+<div class="page-wrap">
 
-<!-- ── TOP BAR ─────────────────────────────────────────────── -->
+<!-- ── HEADER ─────────────────────────────────────────── -->
 <div class="top-bar">
-  <h2>🔍 Auditoria de Inventário</h2>
-  <a href="/" class="back-link">← Scanner</a>
+  <div class="logo">
+    <div class="logo-icon">🔍</div>
+    <div>
+      <span class="logo-text">Auditoria</span>
+      <span class="logo-sub">Conciliação Físico × Sistêmico</span>
+    </div>
+  </div>
+  <a href="/" class="btn-back">← Scanner</a>
 </div>
 
-<!-- ── NOVA AUDITORIA ──────────────────────────────────────── -->
-<div class="card">
+<!-- ── NOVA AUDITORIA ──────────────────────────────────── -->
+<div class="card card-border-purple">
   <h3>📋 Nova Auditoria</h3>
 
   <div class="step-label">Passo 1 — Sessão de contagem física</div>
@@ -283,14 +553,11 @@
   <div class="info-box">
     Faça upload de um arquivo <strong>CSV ou Excel</strong> exportado do seu ERP.<br/>
     Colunas esperadas: <code>codigo_barra</code> · <code>quantidade</code> · <code>estoque_minimo</code> (opcional) · <code>nome</code> (opcional)<br/>
-    <a href="/conciliacao/template/csv"
-       style="color:#7C3AED;font-size:.78rem;display:inline-block;margin-top:6px;">
-      ⬇ Baixar CSV de exemplo
-    </a>
+    <a href="/conciliacao/template/csv">⬇ Baixar CSV de exemplo</a>
   </div>
 
   <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
-    <div style="font-size:2rem;">📁</div>
+    <div class="upload-icon">📁</div>
     <strong id="uploadLabel">Clique ou arraste o arquivo aqui</strong>
     <p>.CSV · .XLSX · .XLS</p>
     <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" onchange="onFileSelect(this)" />
@@ -307,10 +574,10 @@
   </div>
 </div>
 
-<!-- ── RESULTADO ──────────────────────────────────────────── -->
-<div class="card hidden" id="resultadoCard">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-    <h3 style="margin-bottom:0;">📊 Resultado da Auditoria</h3>
+<!-- ── RESULTADO ─────────────────────────────────────────── -->
+<div class="card card-border-green hidden" id="resultadoCard">
+  <div class="resultado-header">
+    <h3>📊 Resultado da Auditoria</h3>
     <button class="btn-success btn-sm" id="btnExcel" onclick="baixarExcel()">
       📊 Excel
     </button>
@@ -336,10 +603,10 @@
       <thead>
         <tr>
           <th>Produto</th>
-          <th>Físico</th>
-          <th>Sistema</th>
-          <th>Divergência</th>
-          <th>Acurácia</th>
+          <th style="text-align:center;">Físico</th>
+          <th style="text-align:center;">Sistema</th>
+          <th style="text-align:center;">Divergência</th>
+          <th style="text-align:center;">Acurácia</th>
           <th>Status</th>
         </tr>
       </thead>
@@ -348,42 +615,44 @@
   </div>
 </div>
 
-<!-- ── HISTÓRICO ─────────────────────────────────────────── -->
-<div class="card">
+<!-- ── HISTÓRICO ──────────────────────────────────────────── -->
+<div class="card card-border-blue">
   <h3>📁 Histórico de Auditorias</h3>
   <div id="historicoLista"><p class="empty-state">Carregando…</p></div>
 </div>
 
-<!-- ── FEEDBACK ──────────────────────────────────────────── -->
+</div><!-- /page-wrap -->
+
+<!-- ── FEEDBACK ─────────────────────────────────────────── -->
 <div id="feedback"></div>
 
 <script>
-// ──────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────
 // Estado
-// ──────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────
 let auditoriaAtualId = null;
 let todosItens = [];
 let filtroAtivo = 'TODOS';
 
-// ──────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────
 // Feedback
-// ──────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────
 let fbTimer = null;
 function mostrarFeedback(msg, tipo = "ok") {
   const el = document.getElementById("feedback");
   el.textContent = msg;
-  el.style.color = tipo === "erro" ? "#EF4444"
-                 : tipo === "aviso" ? "#FBBF24"
-                 : "#34D399";
+  el.style.color = tipo === "erro"   ? "#f5576c"
+                 : tipo === "aviso"  ? "#f6d365"
+                 : "#43e97b";
   el.classList.add("show");
   clearTimeout(fbTimer);
   if (msg) fbTimer = setTimeout(() => el.classList.remove("show"), 3000);
   else el.classList.remove("show");
 }
 
-// ──────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────
 // Drag & Drop upload area
-// ──────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────
 const uploadArea = document.getElementById("uploadArea");
 uploadArea.addEventListener("dragover", e => { e.preventDefault(); uploadArea.classList.add("drag"); });
 uploadArea.addEventListener("dragleave", () => uploadArea.classList.remove("drag"));
@@ -403,14 +672,14 @@ function onFileSelect(input) {
 }
 
 function validarFormulario() {
-  const sessao = document.getElementById("sessaoSelect").value;
+  const sessao  = document.getElementById("sessaoSelect").value;
   const arquivo = document.getElementById("fileInput").files[0];
   document.getElementById("btnExecutar").disabled = !(sessao && arquivo);
 }
 
-// ──────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────
 // Carregar sessões
-// ──────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────
 async function carregarSessoes() {
   try {
     const resp = await fetch("/sessao");
@@ -437,9 +706,9 @@ async function carregarSessoes() {
   }
 }
 
-// ──────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────
 // Executar conciliação
-// ──────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────
 async function executarConciliacao() {
   const sessaoId = document.getElementById("sessaoSelect").value;
   const nome     = document.getElementById("nomeAuditoria").value.trim();
@@ -450,8 +719,7 @@ async function executarConciliacao() {
     return;
   }
 
-  // Progress bar fake
-  const bar = document.getElementById("progressBar");
+  const bar  = document.getElementById("progressBar");
   const wrap = document.getElementById("progressWrap");
   wrap.classList.remove("hidden");
   bar.style.width = "0%";
@@ -501,35 +769,55 @@ async function executarConciliacao() {
   }
 }
 
-// ──────────────────────────────────────────────────────
-// KPIs
-// ──────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────
+// KPIs (com contagem animada)
+// ────────────────────────────────────────────────────
+function animarNumero(el, destino, isPercent = false) {
+  const duracao = 700;
+  const inicio = Date.now();
+  const tick = () => {
+    const pct = Math.min((Date.now() - inicio) / duracao, 1);
+    const ease = 1 - Math.pow(1 - pct, 3);
+    const val = isPercent
+      ? (destino * ease).toFixed(1) + "%"
+      : Math.round(destino * ease);
+    el.textContent = val;
+    if (pct < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
 function renderizarKPIs(data) {
-  const ac = (data.acuracidade_geral || 0).toFixed(1);
+  const ac    = data.acuracidade_geral || 0;
   const itens = data.itens || [];
   const count = s => itens.filter(i => i.status === s).length;
 
   const kpis = [
-    { classe: "kpi-acuracidade", valor: `${ac}%`,          rotulo: "Acuracidade Geral" },
-    { classe: "kpi-ok",          valor: count("OK"),         rotulo: "✅ OK" },
-    { classe: "kpi-divergente",  valor: count("DIVERGENTE"), rotulo: "⚠️ Divergentes" },
-    { classe: "kpi-critico",     valor: count("CRITICO"),    rotulo: "🚨 Críticos" },
-    { classe: "kpi-fantasma",    valor: count("FANTASMA"),   rotulo: "👻 Fantasmas" },
-    { classe: "kpi-sistemico",   valor: count("NAO_SISTEMICO"), rotulo: "🔵 Não Sistêm." },
-    { classe: "kpi-ruptura",     valor: count("RUPTURA"),    rotulo: "🔴 Rupturas" },
+    { classe:"kpi-acuracidade", valor: ac,              rotulo:"Acuracidade Geral", pct: true  },
+    { classe:"kpi-ok",          valor: count("OK"),      rotulo:"✅ OK",             pct: false },
+    { classe:"kpi-divergente",  valor: count("DIVERGENTE"), rotulo:"⚠️ Divergentes", pct: false },
+    { classe:"kpi-critico",     valor: count("CRITICO"), rotulo:"🚨 Críticos",       pct: false },
+    { classe:"kpi-fantasma",    valor: count("FANTASMA"),rotulo:"👻 Fantasmas",      pct: false },
+    { classe:"kpi-sistemico",   valor: count("NAO_SISTEMICO"), rotulo:"🔵 Não Sist.",pct: false },
+    { classe:"kpi-ruptura",     valor: count("RUPTURA"), rotulo:"🔴 Rupturas",       pct: false },
   ];
 
-  document.getElementById("kpiGrid").innerHTML = kpis.map(k => `
-    <div class="kpi-card ${k.classe}">
-      <div class="valor">${k.valor}</div>
+  const grid = document.getElementById("kpiGrid");
+  grid.innerHTML = kpis.map((k, i) =>
+    `<div class="kpi-card ${k.classe}">
+      <div class="valor" id="kpi${i}">0${k.pct ? "%" : ""}</div>
       <div class="rotulo">${k.rotulo}</div>
     </div>`
   ).join("");
+
+  kpis.forEach((k, i) => {
+    setTimeout(() => animarNumero(document.getElementById(`kpi${i}`), k.valor, k.pct), i * 60);
+  });
 }
 
-// ──────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────
 // Tabela de itens
-// ──────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────
 const STATUS_LABELS = {
   OK: "OK",
   DIVERGENTE: "Divergente",
@@ -542,7 +830,7 @@ const STATUS_LABELS = {
 function renderizarTabela(itens) {
   const tbody = document.getElementById("resultadoBody");
   if (!itens.length) {
-    tbody.innerHTML = '<tr><td colspan="6" class="empty-state" style="padding:20px;">Nenhum item</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="empty-state" style="padding:24px;">Nenhum item</td></tr>';
     return;
   }
   tbody.innerHTML = itens.map(i => {
@@ -553,12 +841,12 @@ function renderizarTabela(itens) {
     return `
       <tr>
         <td>
-          <div style="font-weight:500;font-size:.85rem;">${escHtml(i.nome_produto || "—")}</div>
-          <div style="font-size:.72rem;color:#6B7280;">${escHtml(i.codigo_barra)}</div>
+          <div style="font-weight:500;font-size:.83rem;">${escHtml(i.nome_produto || "—")}</div>
+          <div style="font-size:.69rem;color:#4B5563;">${escHtml(i.codigo_barra)}</div>
         </td>
         <td style="text-align:center;">${i.qtd_fisica}</td>
         <td style="text-align:center;">${i.qtd_sistemica}</td>
-        <td style="text-align:center;" class="${divCls}"><strong>${divStr}</strong></td>
+        <td style="text-align:center;" class="${divCls}">${divStr}</td>
         <td style="text-align:center;">${i.acuracidade_item?.toFixed(1)}%</td>
         <td><span class="status-badge status-${i.status}">${STATUS_LABELS[i.status] || i.status}</span></td>
       </tr>`;
@@ -567,9 +855,10 @@ function renderizarTabela(itens) {
 
 function filtrar(status) {
   filtroAtivo = status;
-  // Atualizar botões
   document.querySelectorAll(".filtro-btn").forEach(b => {
-    b.classList.toggle("ativo", b.textContent.includes(status) || (status === "TODOS" && b.textContent.includes("Todos")));
+    b.classList.toggle("ativo",
+      b.textContent.includes(status) || (status === "TODOS" && b.textContent.includes("Todos"))
+    );
   });
   const filtrado = status === "TODOS" ? todosItens : todosItens.filter(i => i.status === status);
   renderizarTabela(filtrado);
@@ -580,9 +869,9 @@ function baixarExcel() {
   window.location.href = `/conciliacao/${auditoriaAtualId}/excel`;
 }
 
-// ──────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────
 // Histórico
-// ──────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────
 async function carregarHistorico() {
   try {
     const resp = await fetch("/conciliacao/historico");
@@ -595,24 +884,24 @@ async function carregarHistorico() {
     }
 
     el.innerHTML = lista.map(a => {
-      const ac = a.acuracidade_geral ?? 0;
+      const ac    = a.acuracidade_geral ?? 0;
       const acCls = ac >= 95 ? "ac-alta" : ac >= 85 ? "ac-media" : "ac-baixa";
-      const data = a.criada_em
+      const data  = a.criada_em
         ? new Date(a.criada_em).toLocaleString("pt-BR",
             { day:"2-digit", month:"2-digit", year:"2-digit",
               hour:"2-digit", minute:"2-digit" })
         : "—";
-      const nome = a.nome || `Auditoria #${a.id}`;
+      const nome  = a.nome || `Auditoria #${a.id}`;
       return `
         <div class="historico-item">
           <div class="historico-info">
             <div class="nome">${escHtml(nome)}</div>
-            <div class="sub">Sessão #${a.sessao_id} · ${data} · ${a.total_itens_fisico ?? 0} ítem(ns) físico(s)</div>
+            <div class="sub">Sessão #${a.sessao_id} · ${data} · ${a.total_itens_fisico ?? 0} ítem(ns)</div>
           </div>
-          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+          <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
             <span class="acuracidade-badge ${acCls}">${ac.toFixed(1)}%</span>
             <button class="btn-secondary btn-sm" onclick="verAuditoria(${a.id})">Ver</button>
-            <button class="btn-danger btn-sm" onclick="excluirAuditoria(${a.id})">🗑</button>
+            <button class="btn-danger btn-sm"    onclick="excluirAuditoria(${a.id})">🗑</button>
           </div>
         </div>`;
     }).join("");
@@ -629,7 +918,6 @@ async function verAuditoria(id) {
     filtroAtivo = "TODOS";
     renderizarKPIs(data);
     renderizarTabela(todosItens);
-    // Reset filtro buttons
     document.querySelectorAll(".filtro-btn").forEach((b, i) => b.classList.toggle("ativo", i === 0));
     document.getElementById("resultadoCard").classList.remove("hidden");
     document.getElementById("resultadoCard").scrollIntoView({ behavior: "smooth" });
@@ -655,17 +943,17 @@ async function excluirAuditoria(id) {
   }
 }
 
-// ──────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────
 // Utilitários
-// ──────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────
 function escHtml(str) {
   return String(str ?? "")
     .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
 
-// ──────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────
 // Init
-// ──────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────
 window.addEventListener("load", () => {
   carregarSessoes();
   carregarHistorico();
@@ -673,4 +961,3 @@ window.addEventListener("load", () => {
 </script>
 </body>
 </html>
-

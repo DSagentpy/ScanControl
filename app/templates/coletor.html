@@ -3,39 +3,132 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <meta name="theme-color" content="#111827" />
+  <meta name="theme-color" content="#0f0c29" />
   <title>Scanner Logístico</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    /* ── FUNDO ANIMADO ─────────────────────────────── */
     body {
-      background: #111827;
-      color: #F9FAFB;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: 'Poppins', -apple-system, sans-serif;
       font-size: 15px;
       min-height: 100vh;
-      padding: 12px;
+      color: #F9FAFB;
+      background: #0f0c29;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 10% 20%, rgba(102,126,234,0.35) 0%, transparent 50%),
+        radial-gradient(ellipse at 90% 80%, rgba(118,75,162,0.35) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(240,93,251,0.12) 0%, transparent 60%);
+      animation: bgPulse 8s ease-in-out infinite alternate;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    @keyframes bgPulse {
+      0%   { opacity: 0.8; transform: scale(1);    }
+      100% { opacity: 1;   transform: scale(1.04); }
+    }
+
+    .page-wrap {
+      position: relative;
+      z-index: 1;
       max-width: 520px;
       margin: 0 auto;
+      padding: 16px 14px 80px;
     }
 
-    h2 {
-      text-align: center;
-      font-size: 1.2rem;
-      font-weight: 700;
-      padding: 10px 0 14px;
-      color: #60A5FA;
-      letter-spacing: .5px;
+    /* ── HEADER ──────────────────────────────────────── */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0 18px;
     }
 
-    .card {
-      background: #1F2937;
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
       border-radius: 12px;
-      padding: 14px;
-      margin-bottom: 12px;
-      border: 1px solid #374151;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      box-shadow: 0 4px 15px rgba(102,126,234,0.5);
     }
+
+    .logo-text {
+      font-size: 1.1rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #a78bfa, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.3px;
+    }
+
+    .logo-sub {
+      font-size: .65rem;
+      color: #6B7280;
+      font-weight: 400;
+      display: block;
+      -webkit-text-fill-color: #6B7280;
+      margin-top: -2px;
+    }
+
+    .btn-auditoria {
+      background: linear-gradient(135deg, #764ba2, #667eea);
+      color: #fff;
+      padding: 9px 16px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-size: .8rem;
+      font-weight: 600;
+      white-space: nowrap;
+      box-shadow: 0 4px 15px rgba(118,75,162,0.4);
+      transition: transform .2s, box-shadow .2s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .btn-auditoria:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(118,75,162,0.5); }
+
+    /* ── GLASS CARDS ─────────────────────────────────── */
+    .card {
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 14px;
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .card:hover { transform: translateY(-1px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+
+    .card-border-blue   { border-left: 3px solid #667eea; }
+    .card-border-green  { border-left: 3px solid #43e97b; }
+    .card-border-purple { border-left: 3px solid #764ba2; }
+    .card-border-amber  { border-left: 3px solid #f6d365; }
+    .card-border-red    { border-left: 3px solid #f5576c; }
 
     .card-header {
       display: flex;
@@ -46,158 +139,294 @@
     }
 
     .card h3 {
-      font-size: .95rem;
+      font-size: .9rem;
       font-weight: 600;
-      color: #93C5FD;
-      margin-bottom: 10px;
+      color: #c4b5fd;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
+    /* ── INPUTS ──────────────────────────────────────── */
     input[type="text"],
     input[type="number"],
     select {
       width: 100%;
-      background: #111827;
-      border: 1px solid #374151;
-      border-radius: 8px;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
       color: #F9FAFB;
-      padding: 10px 12px;
-      font-size: .9rem;
-      margin-bottom: 8px;
+      padding: 10px 14px;
+      font-size: .88rem;
+      font-family: 'Poppins', sans-serif;
+      margin-bottom: 10px;
       outline: none;
-      transition: border-color .2s;
+      transition: border-color .2s, box-shadow .2s;
     }
-    input:focus, select:focus { border-color: #3B82F6; }
-    input::placeholder { color: #6B7280; }
+    input:focus, select:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102,126,234,0.2);
+    }
+    input::placeholder { color: #4B5563; }
+    select option { background: #1a1035; }
 
+    /* ── BOTÕES ──────────────────────────────────────── */
     .btn-row { display: flex; gap: 8px; }
 
     button {
       flex: 1;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       padding: 11px 10px;
-      font-size: .88rem;
+      font-size: .85rem;
       font-weight: 600;
+      font-family: 'Poppins', sans-serif;
       cursor: pointer;
-      transition: opacity .15s, transform .1s;
+      transition: transform .15s, box-shadow .15s, opacity .15s;
       touch-action: manipulation;
     }
-    button:active { opacity: .8; transform: scale(.98); }
+    button:active  { opacity: .85; transform: scale(.97); }
+    button:hover   { transform: translateY(-2px); }
 
-    .btn-primary  { background: #2563EB; color: #fff; }
-    .btn-success  { background: #16A34A; color: #fff; }
-    .btn-danger   { background: #DC2626; color: #fff; }
-    .btn-secondary{ background: #374151; color: #D1D5DB; }
-    .btn-warning  { background: #D97706; color: #fff; }
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(102,126,234,0.4);
+    }
+    .btn-primary:hover { box-shadow: 0 6px 20px rgba(102,126,234,0.55); }
+
+    .btn-success {
+      background: linear-gradient(135deg, #43e97b, #38f9d7);
+      color: #064e3b;
+      box-shadow: 0 4px 15px rgba(67,233,123,0.35);
+    }
+    .btn-success:hover { box-shadow: 0 6px 20px rgba(67,233,123,0.5); }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #f093fb, #f5576c);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(245,87,108,0.35);
+    }
+    .btn-danger:hover { box-shadow: 0 6px 20px rgba(245,87,108,0.5); }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.08);
+      color: #D1D5DB;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.14); }
+
+    .btn-warning {
+      background: linear-gradient(135deg, #f6d365, #fda085);
+      color: #78350f;
+      box-shadow: 0 4px 15px rgba(253,160,133,0.35);
+    }
+
     .btn-sm {
       flex: unset;
-      padding: 5px 10px;
-      font-size: .78rem;
-      border-radius: 6px;
+      padding: 5px 12px;
+      font-size: .76rem;
+      border-radius: 8px;
     }
+    .btn-sm:hover { transform: translateY(-1px); }
 
+    /* ── SCANNER ─────────────────────────────────────── */
     #reader {
-      border-radius: 12px;
+      border-radius: 16px;
       overflow: hidden;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
       transition: box-shadow .3s;
+      background: rgba(0,0,0,0.3);
     }
-    #reader.ok   { box-shadow: 0 0 0 3px #16A34A; }
-    #reader.erro { box-shadow: 0 0 0 3px #DC2626; }
+    #reader.ok   { box-shadow: 0 0 0 3px #43e97b, 0 0 20px rgba(67,233,123,0.3); }
+    #reader.erro { box-shadow: 0 0 0 3px #f5576c, 0 0 20px rgba(245,87,108,0.3); }
 
-    /* html5-qrcode overrides */
-    #reader video { border-radius: 10px; }
+    #reader video { border-radius: 14px; }
     #reader__dashboard_section_csr button,
-    #reader__dashboard_section_swaplink { color: #93C5FD !important; }
-    #reader__status_span { color: #9CA3AF !important; font-size: .8rem !important; }
+    #reader__dashboard_section_swaplink { color: #a78bfa !important; }
+    #reader__status_span { color: #6B7280 !important; font-size: .8rem !important; }
     #reader select { margin-bottom: 0; }
 
-    .hidden { display: none !important; }
-
+    /* ── LISTA DE ITENS ──────────────────────────────── */
     .item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 9px 0;
-      border-bottom: 1px solid #374151;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
       gap: 8px;
+      transition: background .15s;
     }
     .item:last-child { border-bottom: none; }
+    .item:hover { background: rgba(255,255,255,0.03); border-radius: 8px; padding-left: 6px; }
     .item-info { flex: 1; min-width: 0; }
-    .item-info .nome { font-size: .9rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .item-info .sub  { font-size: .75rem; color: #6B7280; margin-top: 2px; }
-    .item-qty { font-weight: 700; color: #34D399; font-size: 1rem; min-width: 32px; text-align: right; }
+    .item-info .nome {
+      font-size: .88rem;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .item-info .sub { font-size: .73rem; color: #6B7280; margin-top: 2px; }
 
-    .total-sessao {
+    .item-qty {
+      font-weight: 700;
+      background: linear-gradient(135deg, #43e97b, #38f9d7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-size: 1.05rem;
+      min-width: 36px;
       text-align: right;
-      color: #9CA3AF;
-      font-size: .82rem;
-      margin-top: 8px;
-      padding-top: 8px;
-      border-top: 1px solid #374151;
     }
 
+    /* ── TOTAL ───────────────────────────────────────── */
+    .total-sessao {
+      text-align: right;
+      color: #6B7280;
+      font-size: .78rem;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .prod-total {
+      font-size: 2rem;
+      font-weight: 800;
+      text-align: center;
+      margin: 6px 0 12px;
+      background: linear-gradient(135deg, #43e97b, #38f9d7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ── TOAST FEEDBACK ──────────────────────────────── */
     #feedback {
       position: fixed;
-      bottom: 16px;
+      bottom: 20px;
       left: 50%;
-      transform: translateX(-50%);
-      background: #1F2937;
-      border: 1px solid #374151;
-      border-radius: 20px;
-      padding: 10px 20px;
-      font-size: .88rem;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(15,12,41,0.9);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 24px;
+      padding: 11px 22px;
+      font-size: .86rem;
       font-weight: 600;
+      font-family: 'Poppins', sans-serif;
       min-width: 200px;
       text-align: center;
       pointer-events: none;
       opacity: 0;
-      transition: opacity .3s;
+      transition: opacity .3s, transform .3s;
       z-index: 999;
       max-width: 90vw;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
     }
-    #feedback.show { opacity: 1; }
-
-    .prod-total {
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: #34D399;
-      text-align: center;
-      margin: 6px 0 12px;
+    #feedback.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
     }
 
+    /* ── BUSCA ───────────────────────────────────────── */
     .search-wrap { position: relative; }
-    .search-wrap input { padding-left: 32px; }
+    .search-wrap input { padding-left: 36px; }
     .search-wrap::before {
       content: "🔍";
       position: absolute;
-      left: 10px;
+      left: 12px;
       top: 50%;
       transform: translateY(-60%);
       font-size: .85rem;
       pointer-events: none;
     }
 
-    .empty-state { text-align: center; color: #4B5563; padding: 20px 0; font-size: .88rem; }
-
-    .chevron { transition: transform .3s; }
+    /* ── ACCORDION ───────────────────────────────────── */
+    .chevron { transition: transform .3s; color: #6B7280; }
     .chevron.open { transform: rotate(180deg); }
+
+    /* ── EMPTY STATE ─────────────────────────────────── */
+    .empty-state {
+      text-align: center;
+      color: #374151;
+      padding: 24px 0;
+      font-size: .85rem;
+    }
+    .empty-state::before { content: "—"; display: block; font-size: 1.5rem; margin-bottom: 6px; }
+
+    /* ── EXPORT STRIP ────────────────────────────────── */
+    .export-strip {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .export-strip button {
+      padding: 10px;
+      font-size: .82rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    /* ── UTIL ────────────────────────────────────────── */
+    .hidden { display: none !important; }
+
+    label.field-label {
+      display: block;
+      color: #9CA3AF;
+      font-size: .78rem;
+      margin-bottom: 4px;
+      margin-top: 6px;
+    }
+
+    /* ── DIVIDER ─────────────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      margin: 14px 0;
+    }
+
+    /* ── SCAN PULSE ──────────────────────────────────── */
+    @keyframes pulse-ring {
+      0%   { box-shadow: 0 0 0 0   rgba(102,126,234,0.5); }
+      70%  { box-shadow: 0 0 0 12px rgba(102,126,234,0);   }
+      100% { box-shadow: 0 0 0 0   rgba(102,126,234,0);   }
+    }
+    .pulse { animation: pulse-ring 1.5s ease-out infinite; }
+
+    /* ── BADGE ───────────────────────────────────────── */
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: .68rem;
+      font-weight: 600;
+    }
+    .badge-green { background: rgba(67,233,123,0.2); color: #43e97b; }
+    .badge-red   { background: rgba(245,87,108,0.2); color: #f5576c; }
   </style>
 </head>
 <body>
+<div class="page-wrap">
 
-<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0 14px;">
-  <h2 style="padding:0;margin:0;">📦 Scanner Logístico</h2>
-  <a href="/auditoria"
-     style="background:#7C3AED;color:#fff;padding:8px 14px;border-radius:8px;
-            text-decoration:none;font-size:.82rem;font-weight:600;white-space:nowrap;">
-    🔍 Auditoria
-  </a>
+<!-- ── HEADER ─────────────────────────────────────────── -->
+<div class="top-bar">
+  <div class="logo">
+    <div class="logo-icon">📦</div>
+    <div>
+      <span class="logo-text">ScanControl</span>
+      <span class="logo-sub">Scanner Logístico</span>
+    </div>
+  </div>
+  <a href="/auditoria" class="btn-auditoria">🔍 Auditoria</a>
 </div>
 
-<!-- ── SESSÃO ──────────────────────────────────────── -->
-<div class="card">
-  <h3>📂 Sessão</h3>
+<!-- ── SESSÃO ─────────────────────────────────────────── -->
+<div class="card card-border-blue">
+  <h3>📂 Sessão de Contagem</h3>
 
   <select id="sessaoSelect" onchange="onSessaoChange()">
     <option value="">Carregando sessões…</option>
@@ -206,41 +435,41 @@
   <input type="text" id="nomeSessao" placeholder="Nome da nova sessão (opcional)" />
 
   <div class="btn-row">
-    <button class="btn-primary" onclick="criarSessao()">+ Nova sessão</button>
+    <button class="btn-primary" onclick="criarSessao()">＋ Nova sessão</button>
     <button class="btn-danger"  onclick="excluirSessao()">🗑 Excluir</button>
   </div>
 </div>
 
-<!-- ── EXPORTAR ────────────────────────────────────── -->
-<div class="btn-row" style="margin-bottom:12px;">
+<!-- ── EXPORTAR ────────────────────────────────────────── -->
+<div class="export-strip">
   <button class="btn-secondary" onclick="exportarPDF()">📄 Exportar PDF</button>
   <button class="btn-success"   onclick="exportarExcel()">📊 Exportar Excel</button>
 </div>
 
-<!-- ── ENTRADA MANUAL ─────────────────────────────── -->
-<div class="card">
+<!-- ── ENTRADA MANUAL ──────────────────────────────────── -->
+<div class="card card-border-purple">
   <div class="card-header" onclick="toggleManual()">
     <h3 style="margin-bottom:0;">⌨️ Código Manual</h3>
     <span class="chevron" id="manualChevron">▼</span>
   </div>
-  <div id="manualArea" class="hidden" style="margin-top:10px;">
+  <div id="manualArea" class="hidden" style="margin-top:12px;">
     <input type="text" id="codigoManual" placeholder="Digite o código de barras"
            onkeydown="if(event.key==='Enter') verificarManual()" />
     <button class="btn-primary" onclick="verificarManual()">Verificar</button>
   </div>
 </div>
 
-<!-- ── SCANNER ─────────────────────────────────────── -->
+<!-- ── SCANNER ─────────────────────────────────────────── -->
 <div id="reader"></div>
 
-<!-- ── PRODUTO ENCONTRADO ─────────────────────────── -->
-<div class="card hidden" id="quantidadeCard">
+<!-- ── PRODUTO ENCONTRADO ──────────────────────────────── -->
+<div class="card card-border-green hidden" id="quantidadeCard">
   <h3 id="produtoNome" style="font-size:1rem;color:#F9FAFB;margin-bottom:4px;"></h3>
-  <p style="color:#6B7280;font-size:.82rem;margin-bottom:2px;">Total já salvo nesta sessão:</p>
+  <p style="color:#6B7280;font-size:.78rem;margin-bottom:2px;">Total já salvo nesta sessão:</p>
   <div class="prod-total" id="totalProduto">0</div>
 
-  <label style="color:#9CA3AF;font-size:.82rem;">Quantidade a adicionar:</label>
-  <input type="number" id="quantidade" value="1" min="1" style="margin-top:6px;" />
+  <label class="field-label">Quantidade a adicionar:</label>
+  <input type="number" id="quantidade" value="1" min="1" style="margin-top:4px;" />
 
   <div class="btn-row" style="margin-top:4px;">
     <button class="btn-success" onclick="salvar()">✅ Salvar</button>
@@ -248,25 +477,24 @@
   </div>
 </div>
 
-<!-- ── CADASTRAR NOVO PRODUTO ─────────────────────── -->
-<div class="card hidden" id="cadastroCard">
+<!-- ── CADASTRAR NOVO PRODUTO ───────────────────────────── -->
+<div class="card card-border-amber hidden" id="cadastroCard">
   <h3>➕ Cadastrar Produto</h3>
-  <p style="color:#FBBF24;font-size:.82rem;margin-bottom:10px;">
+  <p style="color:#f6d365;font-size:.8rem;margin-bottom:12px;">
     Produto não encontrado. Preencha os dados:
   </p>
 
-  <label style="color:#9CA3AF;font-size:.82rem;">Código de barras (escaneado):</label>
-  <input type="text" id="codigoBarraDisplay" readonly
-         style="opacity:.6;margin-top:4px;" />
+  <label class="field-label">Código de barras (escaneado):</label>
+  <input type="text" id="codigoBarraDisplay" readonly style="opacity:.5;margin-top:4px;" />
 
-  <label style="color:#9CA3AF;font-size:.82rem;margin-top:4px;">Código interno *</label>
-  <input type="text" id="codigoInterno" placeholder="Ex: SKU-001" style="margin-top:4px;" />
+  <label class="field-label">Código interno *</label>
+  <input type="text" id="codigoInterno" placeholder="Ex: SKU-001" />
 
-  <label style="color:#9CA3AF;font-size:.82rem;margin-top:4px;">Nome do produto *</label>
-  <input type="text" id="nomeNovo" placeholder="Ex: Caixa de Papelão G" style="margin-top:4px;" />
+  <label class="field-label">Nome do produto *</label>
+  <input type="text" id="nomeNovo" placeholder="Ex: Caixa de Papelão G" />
 
-  <label style="color:#9CA3AF;font-size:.82rem;margin-top:4px;">Descrição (opcional)</label>
-  <input type="text" id="descricaoNovo" placeholder="Ex: 60x40x40cm" style="margin-top:4px;" />
+  <label class="field-label">Descrição (opcional)</label>
+  <input type="text" id="descricaoNovo" placeholder="Ex: 60x40x40cm" />
 
   <div class="btn-row" style="margin-top:4px;">
     <button class="btn-success" onclick="cadastrar()">✅ Cadastrar</button>
@@ -274,8 +502,8 @@
   </div>
 </div>
 
-<!-- ── LISTA DA SESSÃO ─────────────────────────────── -->
-<div class="card">
+<!-- ── LISTA DA SESSÃO ──────────────────────────────────── -->
+<div class="card card-border-green">
   <h3>📋 Produtos da Sessão</h3>
 
   <div class="search-wrap">
@@ -287,14 +515,14 @@
   <div class="total-sessao" id="totalSessao" style="display:none;"></div>
 </div>
 
-<!-- ── CATÁLOGO DE PRODUTOS ───────────────────────── -->
-<div class="card">
+<!-- ── CATÁLOGO DE PRODUTOS ─────────────────────────────── -->
+<div class="card card-border-purple">
   <div class="card-header" onclick="toggleCatalogo()">
     <h3 style="margin-bottom:0;">📦 Catálogo de Produtos</h3>
     <span class="chevron" id="catalogoChevron">▼</span>
   </div>
 
-  <div id="catalogoArea" class="hidden" style="margin-top:10px;">
+  <div id="catalogoArea" class="hidden" style="margin-top:12px;">
     <div class="search-wrap">
       <input type="text" id="buscaCatalogo" placeholder="Buscar por nome ou código…"
              oninput="buscarCatalogo()" style="margin-bottom:10px;" />
@@ -303,10 +531,12 @@
   </div>
 </div>
 
-<!-- ── FEEDBACK ────────────────────────────────────── -->
+</div><!-- /page-wrap -->
+
+<!-- ── FEEDBACK ────────────────────────────────────────── -->
 <div id="feedback"></div>
 
-<!-- ── SCRIPTS ─────────────────────────────────────── -->
+<!-- ── SCRIPTS ─────────────────────────────────────────── -->
 <script src="https://unpkg.com/html5-qrcode" onerror="erroScanner()"></script>
 <script>
 // ──────────────────────────────────────────────
@@ -314,7 +544,7 @@
 // ──────────────────────────────────────────────
 let codigoAtual   = null;
 let sessaoAtual   = null;
-let listaCompleta = [];   // cache para filtro local
+let listaCompleta = [];
 
 // ──────────────────────────────────────────────
 // Feedback
@@ -323,7 +553,9 @@ let feedbackTimer = null;
 function mostrarFeedback(msg, tipo = "ok") {
   const el = document.getElementById("feedback");
   el.textContent = msg;
-  el.style.color = tipo === "erro" ? "#EF4444" : tipo === "aviso" ? "#FBBF24" : "#34D399";
+  el.style.color = tipo === "erro"   ? "#f5576c"
+                 : tipo === "aviso"  ? "#f6d365"
+                 : "#43e97b";
   el.classList.add("show");
   clearTimeout(feedbackTimer);
   if (msg) feedbackTimer = setTimeout(() => el.classList.remove("show"), 2800);
@@ -465,7 +697,7 @@ function iniciarScanner() {
   try {
     if (typeof Html5QrcodeScanner === "undefined") {
       document.getElementById("reader").innerHTML =
-        '<p style="color:#FBBF24;text-align:center;padding:20px;">⚠️ Biblioteca do scanner não carregou.<br>Use a entrada manual abaixo.</p>';
+        '<p style="color:#f6d365;text-align:center;padding:24px;font-family:Poppins,sans-serif;">⚠️ Biblioteca do scanner não carregou.<br>Use a entrada manual acima.</p>';
       return;
     }
     const scanner = new Html5QrcodeScanner("reader", {
@@ -480,13 +712,13 @@ function iniciarScanner() {
     );
   } catch(e) {
     document.getElementById("reader").innerHTML =
-      '<p style="color:#EF4444;text-align:center;padding:20px;">⚠️ Câmera não disponível.<br>Use a entrada manual.</p>';
+      '<p style="color:#f5576c;text-align:center;padding:24px;font-family:Poppins,sans-serif;">⚠️ Câmera não disponível.<br>Use a entrada manual.</p>';
   }
 }
 
 function erroScanner() {
   document.getElementById("reader").innerHTML =
-    '<p style="color:#FBBF24;text-align:center;padding:20px;">⚠️ Scanner não carregou.<br>Use a entrada manual acima.</p>';
+    '<p style="color:#f6d365;text-align:center;padding:24px;font-family:Poppins,sans-serif;">⚠️ Scanner não carregou.<br>Use a entrada manual acima.</p>';
 }
 
 // ──────────────────────────────────────────────
@@ -511,10 +743,7 @@ async function processarCodigo(codigo) {
       reader.classList.add("ok");
       document.getElementById("produtoNome").textContent = data.nome;
       document.getElementById("quantidade").value = 1;
-
-      // Busca total atual da sessão para este produto
       await atualizarTotalProduto(codigo);
-
       mostrarCard("quantidadeCard");
       mostrarFeedback("✅ Produto encontrado");
     } else {
@@ -539,9 +768,7 @@ async function atualizarTotalProduto(codigo) {
   try {
     const resp = await fetch(`/recebimentos/lista/${sessaoAtual}`);
     const lista = await resp.json();
-    // busca no servidor ainda não tem filtro por código;  vamos buscar da lista local após atualizar
     listaCompleta = lista;
-    // Precisamos do nome do produto para cruzar:
     const nomeProd = document.getElementById("produtoNome").textContent;
     const item = lista.find(p => p.nome === nomeProd);
     document.getElementById("totalProduto").textContent = item ? item.total : "0";
@@ -566,9 +793,9 @@ function cancelarScan() {
 // Cadastrar produto
 // ──────────────────────────────────────────────
 async function cadastrar() {
-  const codigo   = document.getElementById("codigoInterno").value.trim();
-  const nome     = document.getElementById("nomeNovo").value.trim();
-  const descricao= document.getElementById("descricaoNovo").value.trim();
+  const codigo    = document.getElementById("codigoInterno").value.trim();
+  const nome      = document.getElementById("nomeNovo").value.trim();
+  const descricao = document.getElementById("descricaoNovo").value.trim();
 
   if (!codigo) { mostrarFeedback("Informe o código interno.", "aviso"); return; }
   if (!nome)   { mostrarFeedback("Informe o nome do produto.", "aviso"); return; }
@@ -706,7 +933,7 @@ async function buscarCatalogo() {
       </div>`
     ).join("");
   } catch(_) {
-    lista.innerHTML = '<p class="empty-state" style="color:#EF4444;">Erro ao carregar</p>';
+    lista.innerHTML = '<p class="empty-state" style="color:#f5576c;">Erro ao carregar</p>';
   }
 }
 
