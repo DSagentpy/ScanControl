@@ -57,7 +57,13 @@ desktop.ini
 
 # Project specific
 ngrok.exe
+cloudflared.exe
 codigosdeinicializacao
+
+# Test / coverage
+.coverage
+htmlcov/
+test.db
 
 # Temporary files
 *.tmp

@@ -15,22 +15,6 @@ def get_produto_por_codigo(db: Session, codigo: str):
     ).first()
 
 
-def get_ultima_sessao(db: Session):
-
-    sessao = db.query(models.Sessao).order_by(
-        models.Sessao.id.desc()
-    ).first()
-
-    if not sessao:
-        sessao = models.Sessao()
-        db.add(sessao)
-        db.commit()
-        db.refresh(sessao)
-
-    return sessao
-
-
-
 @router.post("/recebimentos/verificar")
 def verificar(dados: CodigoBarra, db: Session = Depends(get_db)):
 
@@ -56,6 +40,13 @@ def salvar_recebimento(
     dados: schemas.RecebimentoCreate,
     db: Session = Depends(get_db)
 ):
+    # Verifica se a sessão existe
+    sessao = db.query(models.Sessao).filter(
+        models.Sessao.id == sessao_id
+    ).first()
+    
+    if not sessao:
+        raise HTTPException(status_code=404, detail="Sessão não encontrada")
 
     produto = db.query(models.Produto).filter(
         models.Produto.codigo_barra == dados.codigo_barra

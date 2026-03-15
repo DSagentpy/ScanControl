@@ -1,383 +1,743 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Scanner Logístico</title>
-<script src="https://unpkg.com/html5-qrcode"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="theme-color" content="#111827" />
+  <title>Scanner Logístico</title>
 
-<style>
-body{
-    margin:0;
-    padding:12px;
-    background:#0B0F14;
-    color:#E5E7EB;
-    font-family: system-ui, -apple-system, sans-serif;
-    font-size:14px;
-}
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-h2{
-    font-size:16px;
-    font-weight:600;
-    margin-bottom:8px;
-    color:#F3F4F6;
-}
+    body {
+      background: #111827;
+      color: #F9FAFB;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 15px;
+      min-height: 100vh;
+      padding: 12px;
+      max-width: 520px;
+      margin: 0 auto;
+    }
 
-h3{
-    font-size:14px;
-    font-weight:500;
-    margin-bottom:6px;
-    color:#9CA3AF;
-}
+    h2 {
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: 700;
+      padding: 10px 0 14px;
+      color: #60A5FA;
+      letter-spacing: .5px;
+    }
 
-button{
-    width:100%;
-    padding:8px;
-    margin:4px 0;
-    font-size:13px;
-    border:none;
-    border-radius:6px;
-    font-weight:500;
-    cursor:pointer;
-}
+    .card {
+      background: #1F2937;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+      border: 1px solid #374151;
+    }
 
-.btn-primary{ background:#2563EB; color:white; }
-.btn-success{ background:#16A34A; color:white; }
-.btn-danger{ background:#DC2626; color:white; }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+    }
 
-.card{
-    background:#111827;
-    padding:10px;
-    border-radius:8px;
-    margin-top:8px;
-    border:1px solid #1F2937;
-}
+    .card h3 {
+      font-size: .95rem;
+      font-weight: 600;
+      color: #93C5FD;
+      margin-bottom: 10px;
+    }
 
-input, select{
-    width:100%;
-    padding:8px;
-    font-size:14px;
-    text-align:center;
-    border-radius:6px;
-    border:1px solid #1F2937;
-    background:#0F172A;
-    color:#E5E7EB;
-    margin-top:6px;
-}
+    input[type="text"],
+    input[type="number"],
+    select {
+      width: 100%;
+      background: #111827;
+      border: 1px solid #374151;
+      border-radius: 8px;
+      color: #F9FAFB;
+      padding: 10px 12px;
+      font-size: .9rem;
+      margin-bottom: 8px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    input:focus, select:focus { border-color: #3B82F6; }
+    input::placeholder { color: #6B7280; }
 
-#reader{
-    margin-top:10px;
-    max-width:320px;
-    margin-left:auto;
-    margin-right:auto;
-}
+    .btn-row { display: flex; gap: 8px; }
 
-#reader video{
-    width:100% !important;
-    height:220px !important;
-    object-fit:cover;
-    border-radius:8px;
-}
+    button {
+      flex: 1;
+      border: none;
+      border-radius: 8px;
+      padding: 11px 10px;
+      font-size: .88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity .15s, transform .1s;
+      touch-action: manipulation;
+    }
+    button:active { opacity: .8; transform: scale(.98); }
 
-/* Indicador visual */
+    .btn-primary  { background: #2563EB; color: #fff; }
+    .btn-success  { background: #16A34A; color: #fff; }
+    .btn-danger   { background: #DC2626; color: #fff; }
+    .btn-secondary{ background: #374151; color: #D1D5DB; }
+    .btn-warning  { background: #D97706; color: #fff; }
+    .btn-sm {
+      flex: unset;
+      padding: 5px 10px;
+      font-size: .78rem;
+      border-radius: 6px;
+    }
 
-#reader.success {
-    border: 2px solid #22C55E;
-    box-shadow: 0 0 15px #22C55E55;
-}
+    #reader {
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 12px;
+      transition: box-shadow .3s;
+    }
+    #reader.ok   { box-shadow: 0 0 0 3px #16A34A; }
+    #reader.erro { box-shadow: 0 0 0 3px #DC2626; }
 
-#reader.error {
-    border: 2px solid #EF4444;
-    box-shadow: 0 0 15px #EF444455;
-}
+    /* html5-qrcode overrides */
+    #reader video { border-radius: 10px; }
+    #reader__dashboard_section_csr button,
+    #reader__dashboard_section_swaplink { color: #93C5FD !important; }
+    #reader__status_span { color: #9CA3AF !important; font-size: .8rem !important; }
+    #reader select { margin-bottom: 0; }
 
+    .hidden { display: none !important; }
 
-#listaProdutos{
-    max-height:180px;
-    overflow-y:auto;
-    margin-top:6px;
-}
+    .item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 9px 0;
+      border-bottom: 1px solid #374151;
+      gap: 8px;
+    }
+    .item:last-child { border-bottom: none; }
+    .item-info { flex: 1; min-width: 0; }
+    .item-info .nome { font-size: .9rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .item-info .sub  { font-size: .75rem; color: #6B7280; margin-top: 2px; }
+    .item-qty { font-weight: 700; color: #34D399; font-size: 1rem; min-width: 32px; text-align: right; }
 
-.item{
-    display:flex;
-    justify-content:space-between;
-    padding:6px 4px;
-    border-bottom:1px solid #1F2937;
-    font-size:13px;
-}
+    .total-sessao {
+      text-align: right;
+      color: #9CA3AF;
+      font-size: .82rem;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid #374151;
+    }
 
-#feedback{
-    margin-top:6px;
-    font-size:13px;
-    color:#22C55E;
-}
-</style>
+    #feedback {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1F2937;
+      border: 1px solid #374151;
+      border-radius: 20px;
+      padding: 10px 20px;
+      font-size: .88rem;
+      font-weight: 600;
+      min-width: 200px;
+      text-align: center;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .3s;
+      z-index: 999;
+      max-width: 90vw;
+    }
+    #feedback.show { opacity: 1; }
+
+    .prod-total {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #34D399;
+      text-align: center;
+      margin: 6px 0 12px;
+    }
+
+    .search-wrap { position: relative; }
+    .search-wrap input { padding-left: 32px; }
+    .search-wrap::before {
+      content: "🔍";
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-60%);
+      font-size: .85rem;
+      pointer-events: none;
+    }
+
+    .empty-state { text-align: center; color: #4B5563; padding: 20px 0; font-size: .88rem; }
+
+    .chevron { transition: transform .3s; }
+    .chevron.open { transform: rotate(180deg); }
+  </style>
 </head>
-
 <body>
 
 <h2>📦 Scanner Logístico</h2>
 
+<!-- ── SESSÃO ──────────────────────────────────────── -->
 <div class="card">
-    <h3>📂 Sessões</h3>
-    <select id="sessaoSelect"></select>
-    <button class="btn-primary" onclick="criarSessao()">Nova Sessão</button>
-    <button class="btn-danger" onclick="excluirSessao()">Excluir Sessão</button>
+  <h3>📂 Sessão</h3>
+
+  <select id="sessaoSelect" onchange="onSessaoChange()">
+    <option value="">Carregando sessões…</option>
+  </select>
+
+  <input type="text" id="nomeSessao" placeholder="Nome da nova sessão (opcional)" />
+
+  <div class="btn-row">
+    <button class="btn-primary" onclick="criarSessao()">+ Nova sessão</button>
+    <button class="btn-danger"  onclick="excluirSessao()">🗑 Excluir</button>
+  </div>
 </div>
 
-<button class="btn-primary" onclick="exportarPDF()">📄 Exportar PDF</button>
+<!-- ── EXPORTAR ────────────────────────────────────── -->
+<div class="btn-row" style="margin-bottom:12px;">
+  <button class="btn-secondary" onclick="exportarPDF()">📄 Exportar PDF</button>
+  <button class="btn-success"   onclick="exportarExcel()">📊 Exportar Excel</button>
+</div>
 
+<!-- ── ENTRADA MANUAL ─────────────────────────────── -->
+<div class="card">
+  <div class="card-header" onclick="toggleManual()">
+    <h3 style="margin-bottom:0;">⌨️ Código Manual</h3>
+    <span class="chevron" id="manualChevron">▼</span>
+  </div>
+  <div id="manualArea" class="hidden" style="margin-top:10px;">
+    <input type="text" id="codigoManual" placeholder="Digite o código de barras"
+           onkeydown="if(event.key==='Enter') verificarManual()" />
+    <button class="btn-primary" onclick="verificarManual()">Verificar</button>
+  </div>
+</div>
+
+<!-- ── SCANNER ─────────────────────────────────────── -->
 <div id="reader"></div>
 
-<div class="card" id="quantidadeArea" style="display:none;">
-    <h3 id="produtoNome"></h3>
-    <p>Total: <strong id="totalProduto">0</strong></p>
-    <input type="number" id="quantidade" value="1">
-    <button class="btn-success" onclick="salvar()">Salvar</button>
+<!-- ── PRODUTO ENCONTRADO ─────────────────────────── -->
+<div class="card hidden" id="quantidadeCard">
+  <h3 id="produtoNome" style="font-size:1rem;color:#F9FAFB;margin-bottom:4px;"></h3>
+  <p style="color:#6B7280;font-size:.82rem;margin-bottom:2px;">Total já salvo nesta sessão:</p>
+  <div class="prod-total" id="totalProduto">0</div>
+
+  <label style="color:#9CA3AF;font-size:.82rem;">Quantidade a adicionar:</label>
+  <input type="number" id="quantidade" value="1" min="1" style="margin-top:6px;" />
+
+  <div class="btn-row" style="margin-top:4px;">
+    <button class="btn-success" onclick="salvar()">✅ Salvar</button>
+    <button class="btn-secondary" onclick="cancelarScan()">✕ Cancelar</button>
+  </div>
 </div>
 
-<div class="card" id="cadastroArea" style="display:none;">
-    <h3>Novo Produto</h3>
-    <input type="text" id="codigoInterno" placeholder="Código interno">
-    <input type="text" id="descricaoNovo" placeholder="Descrição">
-    <button class="btn-success" onclick="cadastrar()">Cadastrar Produto</button>
+<!-- ── CADASTRAR NOVO PRODUTO ─────────────────────── -->
+<div class="card hidden" id="cadastroCard">
+  <h3>➕ Cadastrar Produto</h3>
+  <p style="color:#FBBF24;font-size:.82rem;margin-bottom:10px;">
+    Produto não encontrado. Preencha os dados:
+  </p>
+
+  <label style="color:#9CA3AF;font-size:.82rem;">Código de barras (escaneado):</label>
+  <input type="text" id="codigoBarraDisplay" readonly
+         style="opacity:.6;margin-top:4px;" />
+
+  <label style="color:#9CA3AF;font-size:.82rem;margin-top:4px;">Código interno *</label>
+  <input type="text" id="codigoInterno" placeholder="Ex: SKU-001" style="margin-top:4px;" />
+
+  <label style="color:#9CA3AF;font-size:.82rem;margin-top:4px;">Nome do produto *</label>
+  <input type="text" id="nomeNovo" placeholder="Ex: Caixa de Papelão G" style="margin-top:4px;" />
+
+  <label style="color:#9CA3AF;font-size:.82rem;margin-top:4px;">Descrição (opcional)</label>
+  <input type="text" id="descricaoNovo" placeholder="Ex: 60x40x40cm" style="margin-top:4px;" />
+
+  <div class="btn-row" style="margin-top:4px;">
+    <button class="btn-success" onclick="cadastrar()">✅ Cadastrar</button>
+    <button class="btn-secondary" onclick="cancelarScan()">✕ Cancelar</button>
+  </div>
 </div>
 
+<!-- ── LISTA DA SESSÃO ─────────────────────────────── -->
 <div class="card">
-    <h3>Produtos da Sessão</h3>
-    <div id="listaProdutos"></div>
+  <h3>📋 Produtos da Sessão</h3>
+
+  <div class="search-wrap">
+    <input type="text" id="buscaLista" placeholder="Filtrar produtos…"
+           oninput="filtrarLista()" style="margin-bottom:10px;" />
+  </div>
+
+  <div id="listaProdutos"><p class="empty-state">Selecione uma sessão</p></div>
+  <div class="total-sessao" id="totalSessao" style="display:none;"></div>
 </div>
 
+<!-- ── CATÁLOGO DE PRODUTOS ───────────────────────── -->
+<div class="card">
+  <div class="card-header" onclick="toggleCatalogo()">
+    <h3 style="margin-bottom:0;">📦 Catálogo de Produtos</h3>
+    <span class="chevron" id="catalogoChevron">▼</span>
+  </div>
+
+  <div id="catalogoArea" class="hidden" style="margin-top:10px;">
+    <div class="search-wrap">
+      <input type="text" id="buscaCatalogo" placeholder="Buscar por nome ou código…"
+             oninput="buscarCatalogo()" style="margin-bottom:10px;" />
+    </div>
+    <div id="listaCatalogo"><p class="empty-state">Carregando…</p></div>
+  </div>
+</div>
+
+<!-- ── FEEDBACK ────────────────────────────────────── -->
 <div id="feedback"></div>
 
+<!-- ── SCRIPTS ─────────────────────────────────────── -->
+<script src="https://unpkg.com/html5-qrcode" onerror="erroScanner()"></script>
 <script>
+// ──────────────────────────────────────────────
+// Estado global
+// ──────────────────────────────────────────────
+let codigoAtual   = null;
+let sessaoAtual   = null;
+let listaCompleta = [];   // cache para filtro local
 
-let codigoAtual = null;
-let sessaoAtual = null;
-
-/* 🔊 BEEP */
-function beep(tipo="success"){
-
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-const oscillator = audioCtx.createOscillator();
-const gainNode = audioCtx.createGain();
-
-oscillator.connect(gainNode);
-gainNode.connect(audioCtx.destination);
-
-oscillator.type = "square";
-
-if(tipo === "success"){
-    oscillator.frequency.value = 1000;
-} else {
-    oscillator.frequency.value = 400;
+// ──────────────────────────────────────────────
+// Feedback
+// ──────────────────────────────────────────────
+let feedbackTimer = null;
+function mostrarFeedback(msg, tipo = "ok") {
+  const el = document.getElementById("feedback");
+  el.textContent = msg;
+  el.style.color = tipo === "erro" ? "#EF4444" : tipo === "aviso" ? "#FBBF24" : "#34D399";
+  el.classList.add("show");
+  clearTimeout(feedbackTimer);
+  if (msg) feedbackTimer = setTimeout(() => el.classList.remove("show"), 2800);
+  else     el.classList.remove("show");
 }
 
-gainNode.gain.value = 0.1;
-
-oscillator.start();
-setTimeout(() => {
-    oscillator.stop();
-    audioCtx.close();
-}, 150);
+// ──────────────────────────────────────────────
+// Beep + vibração
+// ──────────────────────────────────────────────
+function beep(ok = true) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = "square";
+    osc.frequency.value = ok ? 1050 : 380;
+    gain.gain.value = 0.08;
+    osc.start();
+    setTimeout(() => { osc.stop(); ctx.close(); }, ok ? 120 : 220);
+  } catch(_) {}
+  try { navigator.vibrate(ok ? 60 : [80,40,80]); } catch(_) {}
 }
 
-
-/* =========================
-   SESSÕES
-========================= */
-async function carregarSessoes(){
+// ──────────────────────────────────────────────
+// Sessões
+// ──────────────────────────────────────────────
+async function carregarSessoes() {
+  try {
     const resp = await fetch("/sessao");
-    const data = await resp.json();
+    if (!resp.ok) throw new Error();
+    const sessoes = await resp.json();
 
-    const select = document.getElementById("sessaoSelect");
-    select.innerHTML = "";
+    const sel = document.getElementById("sessaoSelect");
+    sel.innerHTML = "";
 
-    data.forEach(sessao => {
-        const option = document.createElement("option");
-        option.value = sessao.id;
-        option.text = "Sessão " + sessao.id;
-        select.appendChild(option);
+    if (!sessoes.length) {
+      sel.innerHTML = '<option value="">— Nenhuma sessão —</option>';
+      sessaoAtual = null;
+      document.getElementById("listaProdutos").innerHTML =
+        '<p class="empty-state">Crie uma sessão para começar</p>';
+      document.getElementById("totalSessao").style.display = "none";
+      return;
+    }
+
+    sessoes.forEach(s => {
+      const opt = document.createElement("option");
+      opt.value = s.id;
+      const data = s.criada_em
+        ? new Date(s.criada_em).toLocaleString("pt-BR",
+            { day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit" })
+        : "—";
+      opt.text = s.nome
+        ? `#${s.id} — ${s.nome}  (${data})`
+        : `#${s.id}  (${data})`;
+      sel.appendChild(opt);
     });
 
-    if(data.length > 0){
-        sessaoAtual = data[0].id;
-        select.value = sessaoAtual;
-        atualizarLista();
-    }
+    sessaoAtual = sessoes[0].id;
+    sel.value   = sessaoAtual;
+    atualizarLista();
+
+  } catch(_) {
+    mostrarFeedback("⚠️ Sem conexão com o servidor.", "erro");
+  }
 }
 
-document.getElementById("sessaoSelect")
-.addEventListener("change", function(){
-    sessaoAtual = this.value;
-    atualizarLista();
-});
+function onSessaoChange() {
+  sessaoAtual = document.getElementById("sessaoSelect").value || null;
+  atualizarLista();
+}
 
-async function criarSessao(){
-    await fetch("/sessao", { method:"POST" });
+async function criarSessao() {
+  try {
+    const nome = document.getElementById("nomeSessao").value.trim();
+    const resp = await fetch("/sessao", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nome: nome || null })
+    });
+    if (!resp.ok) throw new Error();
+    document.getElementById("nomeSessao").value = "";
+    mostrarFeedback("✅ Sessão criada");
     await carregarSessoes();
+  } catch(_) {
+    mostrarFeedback("⚠️ Erro ao criar sessão.", "erro");
+  }
 }
 
-async function excluirSessao(){
-    if(!sessaoAtual) return;
+async function excluirSessao() {
+  if (!sessaoAtual) { mostrarFeedback("Selecione uma sessão.", "aviso"); return; }
+  if (!confirm("Excluir esta sessão e todos os seus registros?")) return;
+  try {
+    const resp = await fetch(`/sessao/${sessaoAtual}`, { method: "DELETE" });
+    if (!resp.ok) throw new Error();
+    mostrarFeedback("Sessão excluída");
+    await carregarSessoes();
+  } catch(_) {
+    mostrarFeedback("⚠️ Erro ao excluir.", "erro");
+  }
+}
 
-    if(confirm("Excluir esta sessão?")){
-        await fetch(`/sessao/${sessaoAtual}`, { method:"DELETE" });
-        await carregarSessoes();
+// ──────────────────────────────────────────────
+// Exportar
+// ──────────────────────────────────────────────
+function exportarPDF() {
+  if (!sessaoAtual) { mostrarFeedback("Selecione uma sessão.", "aviso"); return; }
+  window.location.href = `/relatorio/pdf?sessao_id=${sessaoAtual}`;
+}
+function exportarExcel() {
+  if (!sessaoAtual) { mostrarFeedback("Selecione uma sessão.", "aviso"); return; }
+  window.location.href = `/relatorio/excel?sessao_id=${sessaoAtual}`;
+}
+
+// ──────────────────────────────────────────────
+// Entrada manual (toggle)
+// ──────────────────────────────────────────────
+function toggleManual() {
+  const area    = document.getElementById("manualArea");
+  const chevron = document.getElementById("manualChevron");
+  const abrir   = area.classList.contains("hidden");
+  area.classList.toggle("hidden", !abrir);
+  chevron.classList.toggle("open", abrir);
+  if (abrir) document.getElementById("codigoManual").focus();
+}
+
+async function verificarManual() {
+  const input  = document.getElementById("codigoManual");
+  const codigo = input.value.trim();
+  if (!codigo) { mostrarFeedback("Digite o código.", "aviso"); return; }
+  input.value = "";
+  await processarCodigo(codigo);
+}
+
+// ──────────────────────────────────────────────
+// Scanner QR / Código de Barras
+// ──────────────────────────────────────────────
+function iniciarScanner() {
+  try {
+    if (typeof Html5QrcodeScanner === "undefined") {
+      document.getElementById("reader").innerHTML =
+        '<p style="color:#FBBF24;text-align:center;padding:20px;">⚠️ Biblioteca do scanner não carregou.<br>Use a entrada manual abaixo.</p>';
+      return;
     }
+    const scanner = new Html5QrcodeScanner("reader", {
+      fps: 10,
+      qrbox: { width: 240, height: 140 },
+      rememberLastUsedCamera: true,
+      supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
+    });
+    scanner.render(
+      decodedText => processarCodigo(decodedText),
+      err => {}
+    );
+  } catch(e) {
+    document.getElementById("reader").innerHTML =
+      '<p style="color:#EF4444;text-align:center;padding:20px;">⚠️ Câmera não disponível.<br>Use a entrada manual.</p>';
+  }
 }
 
-/* =========================
-   ATUALIZAR LISTA
-========================= */
-async function atualizarLista(){
-    if(!sessaoAtual) return;
+function erroScanner() {
+  document.getElementById("reader").innerHTML =
+    '<p style="color:#FBBF24;text-align:center;padding:20px;">⚠️ Scanner não carregou.<br>Use a entrada manual acima.</p>';
+}
 
+// ──────────────────────────────────────────────
+// Processar código (scan ou manual)
+// ──────────────────────────────────────────────
+async function processarCodigo(codigo) {
+  codigoAtual = codigo;
+  try {
+    const resp = await fetch("/recebimentos/verificar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ codigo_barra: codigo })
+    });
+    if (!resp.ok) throw new Error();
+    const data = await resp.json();
+
+    const reader = document.getElementById("reader");
+    reader.classList.remove("ok", "erro");
+
+    if (data.cadastrado) {
+      beep(true);
+      reader.classList.add("ok");
+      document.getElementById("produtoNome").textContent = data.nome;
+      document.getElementById("quantidade").value = 1;
+
+      // Busca total atual da sessão para este produto
+      await atualizarTotalProduto(codigo);
+
+      mostrarCard("quantidadeCard");
+      mostrarFeedback("✅ Produto encontrado");
+    } else {
+      beep(false);
+      reader.classList.add("erro");
+      document.getElementById("codigoBarraDisplay").value = codigo;
+      document.getElementById("codigoInterno").value  = "";
+      document.getElementById("nomeNovo").value        = "";
+      document.getElementById("descricaoNovo").value  = "";
+      mostrarCard("cadastroCard");
+      mostrarFeedback("Produto não cadastrado — preencha os dados.", "aviso");
+    }
+
+    setTimeout(() => reader.classList.remove("ok","erro"), 600);
+  } catch(_) {
+    mostrarFeedback("⚠️ Erro ao verificar.", "erro");
+  }
+}
+
+async function atualizarTotalProduto(codigo) {
+  if (!sessaoAtual) { document.getElementById("totalProduto").textContent = "0"; return; }
+  try {
     const resp = await fetch(`/recebimentos/lista/${sessaoAtual}`);
+    const lista = await resp.json();
+    // busca no servidor ainda não tem filtro por código;  vamos buscar da lista local após atualizar
+    listaCompleta = lista;
+    // Precisamos do nome do produto para cruzar:
+    const nomeProd = document.getElementById("produtoNome").textContent;
+    const item = lista.find(p => p.nome === nomeProd);
+    document.getElementById("totalProduto").textContent = item ? item.total : "0";
+  } catch(_) {
+    document.getElementById("totalProduto").textContent = "0";
+  }
+}
+
+function mostrarCard(id) {
+  document.getElementById("quantidadeCard").classList.add("hidden");
+  document.getElementById("cadastroCard").classList.add("hidden");
+  if (id) document.getElementById(id).classList.remove("hidden");
+}
+
+function cancelarScan() {
+  codigoAtual = null;
+  mostrarCard(null);
+  mostrarFeedback("");
+}
+
+// ──────────────────────────────────────────────
+// Cadastrar produto
+// ──────────────────────────────────────────────
+async function cadastrar() {
+  const codigo   = document.getElementById("codigoInterno").value.trim();
+  const nome     = document.getElementById("nomeNovo").value.trim();
+  const descricao= document.getElementById("descricaoNovo").value.trim();
+
+  if (!codigo) { mostrarFeedback("Informe o código interno.", "aviso"); return; }
+  if (!nome)   { mostrarFeedback("Informe o nome do produto.", "aviso"); return; }
+  if (!codigoAtual) { mostrarFeedback("Código de barras perdido — escaneie novamente.", "erro"); return; }
+
+  try {
+    const resp = await fetch("/produtos", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        codigo:       codigo,
+        nome:         nome,
+        codigo_barra: codigoAtual,
+        descricao:    descricao
+      })
+    });
+
+    if (resp.ok) {
+      mostrarFeedback("✅ Produto cadastrado!");
+      document.getElementById("produtoNome").textContent = nome;
+      document.getElementById("quantidade").value = 1;
+      document.getElementById("totalProduto").textContent = "0";
+      mostrarCard("quantidadeCard");
+    } else {
+      const err = await resp.json();
+      mostrarFeedback(`⚠️ ${err.detail || "Erro ao cadastrar."}`, "erro");
+    }
+  } catch(_) {
+    mostrarFeedback("⚠️ Sem conexão com o servidor.", "erro");
+  }
+}
+
+// ──────────────────────────────────────────────
+// Salvar recebimento
+// ──────────────────────────────────────────────
+async function salvar() {
+  if (!sessaoAtual) { mostrarFeedback("Selecione uma sessão.", "aviso"); return; }
+  const qty = Number(document.getElementById("quantidade").value);
+  if (!qty || qty <= 0) { mostrarFeedback("Quantidade inválida.", "aviso"); return; }
+
+  try {
+    const resp = await fetch(`/recebimentos/salvar/${sessaoAtual}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ codigo_barra: codigoAtual, quantidade: qty })
+    });
+    if (!resp.ok) throw new Error((await resp.json()).detail);
     const data = await resp.json();
 
-    const lista = document.getElementById("listaProdutos");
-    lista.innerHTML = "";
-
-    data.forEach(prod => {
-        const div = document.createElement("div");
-        div.className = "item";
-        div.innerHTML = `
-            <span>${prod.nome}</span>
-            <strong>${prod.total}</strong>
-        `;
-        lista.appendChild(div);
-    });
-}
-
-/* =========================
-   SCAN
-========================= */
-async function onScanSuccess(decodedText){
-
-codigoAtual = decodedText;
-
-const resp = await fetch("/recebimentos/verificar",{
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify({codigo_barra: codigoAtual})
-});
-
-const data = await resp.json();
-
-const reader = document.getElementById("reader");
-
-if(data.cadastrado){
-
-    beep("success");
-    navigator.vibrate?.(80);
-
-    reader.classList.add("success");
-
-    document.getElementById("produtoNome").innerText = data.nome;
-    document.getElementById("quantidadeArea").style.display = "block";
-    document.getElementById("cadastroArea").style.display = "none";
-
-} else {
-
-    beep("error");
-    navigator.vibrate?.(150);
-
-    reader.classList.add("error");
-
-    document.getElementById("quantidadeArea").style.display = "none";
-    document.getElementById("cadastroArea").style.display = "block";
-    document.getElementById("feedback").innerText =
-        "Produto não cadastrado.";
-}
-
-// Remove efeito após 500ms
-setTimeout(() => {
-    reader.classList.remove("success");
-    reader.classList.remove("error");
-}, 500);
-}
-
-/* =========================
-   CADASTRAR
-========================= */
-async function cadastrar(){
-
-    const codigoInterno = document.getElementById("codigoInterno").value.trim();
-    const descricao = document.getElementById("descricaoNovo").value.trim();
-
-    const resp = await fetch("/produtos",{
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body:JSON.stringify({
-            codigo: codigoInterno,
-            nome: codigoInterno,
-            codigo_barra: codigoAtual,
-            descricao: descricao
-        })
-    });
-
-    if(resp.ok){
-        document.getElementById("feedback").innerText =
-            "✔ Produto cadastrado";
-        document.getElementById("cadastroArea").style.display="none";
-        document.getElementById("quantidadeArea").style.display="block";
-        document.getElementById("produtoNome").innerText = codigoInterno;
-    }
-}
-
-/* =========================
-   SALVAR
-========================= */
-async function salvar(){
-
-    if(!sessaoAtual){
-        alert("Selecione uma sessão.");
-        return;
-    }
-
-    const quantidade = Number(document.getElementById("quantidade").value);
-
-    const resp = await fetch(`/recebimentos/salvar/${sessaoAtual}`,{
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body:JSON.stringify({
-            codigo_barra: codigoAtual,
-            quantidade: quantidade
-        })
-    });
-
-    const data = await resp.json();
-
-    document.getElementById("totalProduto").innerText =
-        data.quantidade_total;
-
-    document.getElementById("feedback").innerText =
-        "✔ Salvo com sucesso";
-
+    document.getElementById("totalProduto").textContent = data.quantidade_total;
+    document.getElementById("quantidade").value = 1;
+    mostrarFeedback(`✅ Salvo! Total: ${data.quantidade_total}`);
     atualizarLista();
+  } catch(e) {
+    mostrarFeedback(`⚠️ ${e.message || "Erro ao salvar."}`, "erro");
+  }
 }
 
-/* =========================
-   PDF
-========================= */
-function exportarPDF(){
-    if(!sessaoAtual) return;
-    window.location.href =
-        `/relatorio/pdf?sessao_id=${sessaoAtual}`;
+// ──────────────────────────────────────────────
+// Lista da sessão
+// ──────────────────────────────────────────────
+async function atualizarLista() {
+  if (!sessaoAtual) return;
+  try {
+    const resp = await fetch(`/recebimentos/lista/${sessaoAtual}`);
+    listaCompleta = await resp.json();
+    renderizarLista(listaCompleta);
+  } catch(_) {}
 }
 
-/* =========================
-   INIT
-========================= */
-window.addEventListener("load",()=>{
-    carregarSessoes();
-    const scanner = new Html5QrcodeScanner("reader",{
-        fps:10,
-        qrbox:200
-    });
-    scanner.render(onScanSuccess);
+function renderizarLista(dados) {
+  const el    = document.getElementById("listaProdutos");
+  const total = document.getElementById("totalSessao");
+
+  if (!dados.length) {
+    el.innerHTML = '<p class="empty-state">Nenhum produto escaneado ainda</p>';
+    total.style.display = "none";
+    return;
+  }
+
+  const totalItens = dados.reduce((s, p) => s + p.total, 0);
+  el.innerHTML = dados.map(p => `
+    <div class="item">
+      <div class="item-info">
+        <div class="nome">${p.nome}</div>
+      </div>
+      <div class="item-qty">${p.total}</div>
+    </div>`
+  ).join("");
+
+  total.textContent = `Total: ${totalItens} item(ns) · ${dados.length} produto(s)`;
+  total.style.display = "block";
+}
+
+function filtrarLista() {
+  const busca = document.getElementById("buscaLista").value.toLowerCase();
+  renderizarLista(
+    listaCompleta.filter(p => p.nome.toLowerCase().includes(busca))
+  );
+}
+
+// ──────────────────────────────────────────────
+// Catálogo de produtos (accordion)
+// ──────────────────────────────────────────────
+function toggleCatalogo() {
+  const area    = document.getElementById("catalogoArea");
+  const chevron = document.getElementById("catalogoChevron");
+  const abrir   = area.classList.contains("hidden");
+  area.classList.toggle("hidden", !abrir);
+  chevron.classList.toggle("open", abrir);
+  if (abrir) buscarCatalogo();
+}
+
+async function buscarCatalogo() {
+  const busca = document.getElementById("buscaCatalogo").value.trim();
+  const lista = document.getElementById("listaCatalogo");
+  lista.innerHTML = '<p class="empty-state">Carregando…</p>';
+  try {
+    const resp = await fetch(`/produtos?busca=${encodeURIComponent(busca)}`);
+    const data = await resp.json();
+
+    if (!data.length) {
+      lista.innerHTML = '<p class="empty-state">Nenhum produto encontrado</p>';
+      return;
+    }
+
+    lista.innerHTML = data.map(p => `
+      <div class="item">
+        <div class="item-info">
+          <div class="nome">${escapeHtml(p.nome)}</div>
+          <div class="sub">${escapeHtml(p.codigo_barra)} · Cód: ${escapeHtml(p.codigo)}</div>
+        </div>
+        <button class="btn-danger btn-sm"
+          onclick="deletarProduto(${p.id}, '${escapeAttr(p.nome)}')">🗑</button>
+      </div>`
+    ).join("");
+  } catch(_) {
+    lista.innerHTML = '<p class="empty-state" style="color:#EF4444;">Erro ao carregar</p>';
+  }
+}
+
+async function deletarProduto(id, nome) {
+  if (!confirm(`Excluir "${nome}" do catálogo?\n\n(Só é possível se não houver recebimentos registrados)`)) return;
+  try {
+    const resp = await fetch(`/produtos/${id}`, { method: "DELETE" });
+    if (resp.status === 204) {
+      mostrarFeedback("Produto excluído do catálogo");
+      buscarCatalogo();
+    } else {
+      const err = await resp.json();
+      mostrarFeedback(`⚠️ ${err.detail}`, "erro");
+    }
+  } catch(_) {
+    mostrarFeedback("⚠️ Erro ao excluir.", "erro");
+  }
+}
+
+// ──────────────────────────────────────────────
+// Utilitários XSS
+// ──────────────────────────────────────────────
+function escapeHtml(str) {
+  return String(str ?? "")
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;");
+}
+function escapeAttr(str) {
+  return String(str ?? "").replace(/'/g, "\\'").replace(/"/g, "&quot;");
+}
+
+// ──────────────────────────────────────────────
+// Init
+// ──────────────────────────────────────────────
+window.addEventListener("load", () => {
+  carregarSessoes();
+  iniciarScanner();
 });
 </script>
-
 </body>
 </html>

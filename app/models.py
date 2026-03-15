@@ -1,25 +1,24 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, func
 from sqlalchemy.orm import relationship
 from app.database import Base
+
 
 class Produto(Base):
     __tablename__ = "produtos"
 
     id = Column(Integer, primary_key=True, index=True)
-    codigo = Column(String)  # 🔥 ADICIONE ISSO
-    nome = Column(String)
-    codigo_barra = Column(String, unique=True)
-    descricao = Column(String)
+    codigo = Column(String, index=True)
+    nome = Column(String, index=True)
+    codigo_barra = Column(String, unique=True, index=True)
+    descricao = Column(String, default="")
 
-
-from sqlalchemy import Column, Integer, DateTime
-from datetime import datetime
 
 class Sessao(Base):
     __tablename__ = "sessao"
 
     id = Column(Integer, primary_key=True, index=True)
-    criada_em = Column(DateTime, default=datetime.utcnow)
+    nome = Column(String, nullable=True)
+    criada_em = Column(DateTime, default=func.now(), server_default=func.now())
 
 
 class Recebimento(Base):
@@ -27,7 +26,8 @@ class Recebimento(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     produto_id = Column(Integer, ForeignKey("produtos.id"))
-    sessao_id = Column(Integer, ForeignKey("sessao.id"))
+    sessao_id = Column(Integer, ForeignKey("sessao.id"), index=True)
     quantidade = Column(Integer)
+    escaneado_em = Column(DateTime, default=func.now(), server_default=func.now())
 
     produto = relationship("Produto")
