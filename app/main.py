@@ -6,47 +6,47 @@ from fastapi.exceptions import RequestValidationError
 from pathlib import Path
 from sqlalchemy import text
 
-from app.database import Base, engine, SessionLocal
-from app.routers import produtos, recebimentos, sessao, relatorio
+from app.database import Base, engine
+from app.routers import produtos, recebimentos, sessao, relatorio, conciliacao
 
-# Configuração de logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="Scanner Logístico Profissional")
+app = FastAPI(title="Sistema de Auditoria Logística")
 
 
 def run_migrations():
     """Adiciona colunas novas em tabelas existentes sem apagar dados."""
-    novas_colunas = [
-        ("sessao",       "ALTER TABLE sessao ADD COLUMN nome VARCHAR"),
-        ("recebimentos", "ALTER TABLE recebimentos ADD COLUMN escaneado_em DATETIME DEFAULT CURRENT_TIMESTAMP"),
+    stmts = [
+        "ALTER TABLE sessao ADD COLUMN nome VARCHAR",
+        "ALTER TABLE recebimentos ADD COLUMN escaneado_em DATETIME DEFAULT CURRENT_TIMESTAMP",
     ]
     with engine.connect() as conn:
-        for tabela, sql in novas_colunas:
+        for sql in stmts:
             try:
                 conn.execute(text(sql))
                 conn.commit()
-                logger.info(f"Migração aplicada: {tabela}")
             except Exception:
-                pass  # Coluna já existe
+                pass  # coluna já existe
 
 
-# Cria tabelas e roda migrações
-logger.info("Criando tabelas do banco de dados...")
+logger.info("Criando/verificando tabelas...")
 Base.metadata.create_all(bind=engine)
 run_migrations()
 
+# Routers
 app.include_router(produtos.router)
 app.include_router(recebimentos.router)
 app.include_router(sessao.router)
 app.include_router(relatorio.router)
+app.include_router(conciliacao.router)
 
 
-# Tratamento global de erros de validação
+# ── Exception handlers ────────────────────────────────────────────────────────
+
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     logger.warning(f"Erro de validação: {exc.errors()}")
@@ -56,17 +56,24 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     )
 
 
-# Tratamento global de erros genéricos
 @app.exception_handler(Exception)
 async def general_exception_handler(request: Request, exc: Exception):
-    logger.error(f"Erro não tratado: {str(exc)}", exc_info=True)
+    logger.error(f"Erro não tratado: {exc}", exc_info=True)
     return JSONResponse(
         status_code=500,
         content={"detail": "Erro interno do servidor"}
     )
 
 
+# ── Páginas HTML ──────────────────────────────────────────────────────────────
+
 @app.get("/", response_class=HTMLResponse)
 def home():
     caminho = Path(__file__).parent / "templates" / "coletor.html"
+    return caminho.read_text(encoding="utf-8")
+
+
+@app.get("/auditoria", response_class=HTMLResponse)
+def auditoria():
+    caminho = Path(__file__).parent / "templates" / "auditoria.html"
     return caminho.read_text(encoding="utf-8")
