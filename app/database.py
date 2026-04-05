@@ -8,9 +8,12 @@ DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./data.db")
 # Define os argumentos de conexão dependendo do tipo de banco
 connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
 
-# Ajusta a URL para PostgreSQL usar psycopg
+# PostgreSQL (Render, etc.): URL externa costuma vir como postgresql:// ou postgres://
+# O projeto usa o driver psycopg2 (pacote psycopg2-binary).
 if DATABASE_URL.startswith("postgresql://"):
-    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg://", 1)
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
+elif DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg2://", 1)
 
 # Cria o engine do SQLAlchemy
 engine = create_engine(
